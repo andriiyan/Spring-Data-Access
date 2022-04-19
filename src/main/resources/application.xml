@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-lazy-init="true">
+    <bean id="eventStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"/>
+    <bean id="ticketStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"/>
+    <bean id="userStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"/>
+    <bean id="eventDao" class="com.github.andriiyan.spring_data_access.impl.dao.EventDaoImpl">
+        <constructor-arg ref="eventStorage"/>
+    </bean>
+    <bean id="ticketDao" class="com.github.andriiyan.spring_data_access.impl.dao.TicketDaoImpl">
+        <constructor-arg ref="ticketStorage"/>
+    </bean>
+    <bean id="userDao" class="com.github.andriiyan.spring_data_access.impl.dao.UserDaoImpl">
+        <constructor-arg ref="userStorage"/>
+    </bean>
+    <bean id="eventService" class="com.github.andriiyan.spring_data_access.impl.service.EventServiceImpl">
+        <property name="eventDao" ref="eventDao"/> <!-- task requirement: dao should be injected via setters -->
+    </bean>
+    <bean id="ticketService" class="com.github.andriiyan.spring_data_access.impl.service.TicketServiceImpl">
+        <property name="ticketDao" ref="ticketDao"/> <!-- task requirement: dao should be injected via setters -->
+    </bean>
+    <bean id="userService" class="com.github.andriiyan.spring_data_access.impl.service.UserServiceImpl">
+        <property name="userDao" ref="userDao"/> <!-- task requirement: dao should be injected via setters -->
+    </bean>
+    <bean id="bookingFacade" class="com.github.andriiyan.spring_data_access.impl.facade.BookingFacadeImpl">
+        <constructor-arg ref="eventService"/>
+        <constructor-arg ref="ticketService"/>
+        <constructor-arg ref="userService"/>
+    </bean>
+</beans>

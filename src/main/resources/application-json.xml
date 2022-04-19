@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd"
+       profile="json"
+       default-lazy-init="true">
+    <!--  For reading properties files -->
+    <context:property-placeholder location="classpath:dump.properties,classpath:dump-json.properties"/>
+    <bean id="userJsonInstanceCreator"
+          class="com.github.andriiyan.spring_data_access.impl.model.UserEntity.UserJsonInstanceCreator"/>
+    <bean id="ticketJsonInstanceCreator"
+          class="com.github.andriiyan.spring_data_access.impl.model.TicketEntity.TicketJsonInstanceCreator"/>
+    <bean id="eventJsonInstanceCreator"
+          class="com.github.andriiyan.spring_data_access.impl.model.EventEntity.EventJsonInstanceCreator"/>
+    <bean id="jsonSerializer" class="com.github.andriiyan.spring_data_access.impl.utils.file.serializer.JsonSerializer"
+          autowire="byType"/>
+    <bean id="fileUtils" class="com.github.andriiyan.spring_data_access.impl.utils.file.FileUtils">
+        <constructor-arg ref="jsonSerializer"/>
+    </bean>
+    <bean id="eventStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"
+          init-method="initialize">
+        <property name="initializationFilePath" value="${dao.event.initializationFilePath}"/>
+        <property name="fileUtils" ref="fileUtils"/>
+        <property name="templateClassName" value="com.github.andriiyan.spring_data_access.api.model.Event"/>
+    </bean>
+    <bean id="ticketStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"
+          init-method="initialize">
+        <property name="initializationFilePath" value="${dao.ticket.initializationFilePath}"/>
+        <property name="fileUtils" ref="fileUtils"/>
+        <property name="templateClassName" value="com.github.andriiyan.spring_data_access.api.model.Ticket"/>
+    </bean>
+    <bean id="userStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"
+          init-method="initialize">
+        <property name="initializationFilePath" value="${dao.user.initializationFilePath}"/>
+        <property name="fileUtils" ref="fileUtils"/>
+        <property name="templateClassName" value="com.github.andriiyan.spring_data_access.api.model.User"/>
+    </bean>
+</beans>
