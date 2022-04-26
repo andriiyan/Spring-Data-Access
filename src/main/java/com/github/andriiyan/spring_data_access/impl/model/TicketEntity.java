@@ -2,19 +2,42 @@ package com.github.andriiyan.spring_data_access.impl.model;
 
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
 import com.github.andriiyan.spring_data_access.impl.utils.JsonInstanceCreator;
+import com.github.andriiyan.spring_data_access.impl.utils.converter.CategoryConverter;
 import com.google.gson.Gson;
+import jakarta.persistence.*;
+import org.springframework.lang.NonNull;
 
 import java.util.Arrays;
 import java.util.Collection;
 
+@Entity
+@Table(
+        name = "ticket",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"event_id", "place"})
+)
 public class TicketEntity implements Ticket {
     private static final long serialVersionUID = 1L;
 
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @Column(name = "event_id", nullable = false)
     private long eventId;
+
+    @Column(name = "user_id", nullable = false)
     private long userId;
+
+    @Column(name = "category", nullable = false)
+    @Convert(converter = CategoryConverter.class)
     private Category category;
+
+    @Column(name = "place", nullable = false)
     private int place;
+
+    public TicketEntity() {
+    }
 
     public TicketEntity(long id, long eventId, long userId, Category category, int place) {
         this.id = id;

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
@@ -73,7 +74,7 @@ class DumpUtils {
     private Collection<Event> dumpEvents() throws IOException {
         Collection<Event> events = new ArrayList<>();
         for (int i = 0; i < itemCount; i++) {
-            events.add(new EventEntity(i, "Test #" + i, new Date()));
+            events.add(new EventEntity(i, "Test #" + i, ZonedDateTime.now()));
         }
         fileUtils.writeIntoFile(rootFolder + "events" + suffix(), events);
         return events;
