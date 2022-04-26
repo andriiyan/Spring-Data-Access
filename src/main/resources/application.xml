@@ -7,6 +7,7 @@
     <bean id="eventStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"/>
     <bean id="ticketStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"/>
     <bean id="userStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"/>
+    <bean id="userAccountStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"/>
     <bean id="eventDao" class="com.github.andriiyan.spring_data_access.impl.dao.EventDaoImpl">
         <constructor-arg ref="eventStorage"/>
     </bean>
@@ -15,6 +16,9 @@
     </bean>
     <bean id="userDao" class="com.github.andriiyan.spring_data_access.impl.dao.UserDaoImpl">
         <constructor-arg ref="userStorage"/>
+    </bean>
+    <bean id="userAccountDao" class="com.github.andriiyan.spring_data_access.impl.dao.UserAccountDaoImpl">
+        <constructor-arg ref="userAccountStorage"/>
     </bean>
     <bean id="eventService" class="com.github.andriiyan.spring_data_access.impl.service.EventServiceImpl">
         <property name="eventDao" ref="eventDao"/> <!-- task requirement: dao should be injected via setters -->
@@ -25,9 +29,13 @@
     <bean id="userService" class="com.github.andriiyan.spring_data_access.impl.service.UserServiceImpl">
         <property name="userDao" ref="userDao"/> <!-- task requirement: dao should be injected via setters -->
     </bean>
+    <bean id="userAccountService" class="com.github.andriiyan.spring_data_access.impl.service.UserAccountServiceImpl">
+        <property name="userAccountDao" ref="userAccountDao"/>
+    </bean>
     <bean id="bookingFacade" class="com.github.andriiyan.spring_data_access.impl.facade.BookingFacadeImpl">
         <constructor-arg ref="eventService"/>
         <constructor-arg ref="ticketService"/>
         <constructor-arg ref="userService"/>
+        <constructor-arg ref="userAccountService" />
     </bean>
 </beans>

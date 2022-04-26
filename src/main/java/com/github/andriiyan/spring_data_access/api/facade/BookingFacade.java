@@ -3,6 +3,7 @@ package com.github.andriiyan.spring_data_access.api.facade;
 import com.github.andriiyan.spring_data_access.api.model.Event;
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
 import com.github.andriiyan.spring_data_access.api.model.User;
+import com.github.andriiyan.spring_data_access.api.model.UserAccount;
 import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
 
 import java.util.Date;
@@ -139,5 +140,19 @@ public interface BookingFacade {
      * @return Flag whether anything has been canceled.
      */
     boolean cancelTicket(long ticketId);
+
+    /**
+     * Refills user's account.
+     * @param amount amount that wil be added to the user's account.
+     * @param userId id of the user.
+     * @return new user's account amount.
+     */
+    UserAccount refillUser(double amount, long userId) throws ModelNotFoundException;
+
+    /**
+     * @param userId id of the user.
+     * @return user's amount.
+     */
+    UserAccount getUserAmount(long userId);
 
 }

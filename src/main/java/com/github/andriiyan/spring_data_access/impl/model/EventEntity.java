@@ -30,6 +30,9 @@ public class EventEntity implements Event {
     @Column(name = "date", nullable = false)
     private String dateString;
 
+    @Column(name = "ticket_price", nullable = false)
+    private double ticketPrice;
+
     @Transient
     private ZonedDateTime date;
 
@@ -40,11 +43,21 @@ public class EventEntity implements Event {
         this.dateString = date.format(DateUtils.dbDateTimeFormatter);
     }
 
+    public EventEntity(long id, String title, ZonedDateTime date, double ticketPrice) {
+        this(id, title, date);
+        this.ticketPrice = ticketPrice;
+    }
+
     public EventEntity(long id, String title, String date) {
         this.id = id;
         this.title = title;
         this.dateString = date;
         this.date = ZonedDateTime.from(DateUtils.dbDateTimeFormatter.parse(date));
+    }
+
+    public EventEntity(long id, String title, String date, double ticketPrice) {
+        this(id, title, date);
+        this.ticketPrice = ticketPrice;
     }
 
     public EventEntity() {
@@ -79,6 +92,16 @@ public class EventEntity implements Event {
     public void setDate(Date date) {
         this.date = DateUtils.fromDate(date);
         this.dateString = DateUtils.dbDateTimeFormatter.format(this.date);
+    }
+
+    @Override
+    public double getTicketPrice() {
+        return ticketPrice;
+    }
+
+    @Override
+    public void setTicketPrice(double price) {
+        this.ticketPrice = price;
     }
 
     @Override
