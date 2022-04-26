@@ -4,8 +4,10 @@ import com.github.andriiyan.spring_data_access.api.facade.BookingFacade;
 import com.github.andriiyan.spring_data_access.api.model.Event;
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
 import com.github.andriiyan.spring_data_access.api.model.User;
+import com.github.andriiyan.spring_data_access.api.model.UserAccount;
 import com.github.andriiyan.spring_data_access.api.service.EventService;
 import com.github.andriiyan.spring_data_access.api.service.TicketService;
+import com.github.andriiyan.spring_data_access.api.service.UserAccountService;
 import com.github.andriiyan.spring_data_access.api.service.UserService;
 import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
 import org.slf4j.Logger;
@@ -21,11 +23,13 @@ class BookingFacadeImpl implements BookingFacade {
     private final EventService eventService;
     private final TicketService ticketService;
     private final UserService userService;
+    private final UserAccountService userAccountService;
 
-    public BookingFacadeImpl(EventService eventService, TicketService ticketService, UserService userService) {
+    public BookingFacadeImpl(EventService eventService, TicketService ticketService, UserService userService, UserAccountService userAccountService) {
         this.eventService = eventService;
         this.ticketService = ticketService;
         this.userService = userService;
+        this.userAccountService = userAccountService;
     }
 
     @Override
@@ -139,4 +143,22 @@ class BookingFacadeImpl implements BookingFacade {
         logger.debug("cancelTicket was invoked with {} and returning {}", ticketId, result);
         return result;
     }
+
+    @Override
+    public UserAccount refillUser(double amount, long userId) throws ModelNotFoundException {
+        if (amount < 0) {
+            throw new IllegalArgumentException("amount should be > 0");
+        }
+        UserAccount result = userAccountService.refillUser(amount, userId);
+        logger.debug("refillUser was invoked with the amount: {}, userId: {} and returned {}", amount, userId, result);
+        return result;
+    }
+
+    @Override
+    public UserAccount getUserAmount(long userId) {
+        UserAccount result = userAccountService.getUserAmount(userId);
+        logger.debug("getUserAmount was invoked with the userId: {} and returned {}", userId, result);
+        return result;
+    }
+
 }
