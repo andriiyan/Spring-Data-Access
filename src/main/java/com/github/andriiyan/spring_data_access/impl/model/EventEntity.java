@@ -1,24 +1,53 @@
 package com.github.andriiyan.spring_data_access.impl.model;
 
 import com.github.andriiyan.spring_data_access.api.model.Event;
+import com.github.andriiyan.spring_data_access.impl.utils.DateUtils;
 import com.github.andriiyan.spring_data_access.impl.utils.JsonInstanceCreator;
 import com.google.gson.Gson;
+import jakarta.persistence.*;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
+@Entity
+@Table(
+        name = "event",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"title", "date"})
+)
 public class EventEntity implements Event {
     private static final long serialVersionUID = 1L;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private long id;
-    private String title;
-    private Date date;
 
-    public EventEntity(long id, String title, Date date) {
+    @Column(name = "title", nullable = false)
+    private String title;
+
+    @Column(name = "date", nullable = false)
+    private String dateString;
+
+    @Transient
+    private ZonedDateTime date;
+
+    public EventEntity(long id, String title, ZonedDateTime date) {
         this.id = id;
         this.title = title;
         this.date = date;
+        this.dateString = date.format(DateUtils.dbDateTimeFormatter);
+    }
+
+    public EventEntity(long id, String title, String date) {
+        this.id = id;
+        this.title = title;
+        this.dateString = date;
+        this.date = ZonedDateTime.from(DateUtils.dbDateTimeFormatter.parse(date));
+    }
+
+    public EventEntity() {
     }
 
     @Override
@@ -43,12 +72,13 @@ public class EventEntity implements Event {
 
     @Override
     public Date getDate() {
-        return date;
+        return DateUtils.getDateFromZonedDateTime(date);
     }
 
     @Override
     public void setDate(Date date) {
-        this.date = date;
+        this.date = DateUtils.fromDate(date);
+        this.dateString = DateUtils.dbDateTimeFormatter.format(this.date);
     }
 
     @Override

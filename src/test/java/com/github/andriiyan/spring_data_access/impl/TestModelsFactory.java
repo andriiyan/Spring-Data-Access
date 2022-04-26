@@ -7,6 +7,7 @@ import com.github.andriiyan.spring_data_access.impl.model.EventEntity;
 import com.github.andriiyan.spring_data_access.impl.model.TicketEntity;
 import com.github.andriiyan.spring_data_access.impl.model.UserEntity;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +24,7 @@ public final class TestModelsFactory {
 
         protected String title(int count) { return "Title #" + count; }
 
-        protected Date date(int count) { return new Date(); }
+        protected ZonedDateTime date(int count) { return ZonedDateTime.now(); }
 
         @Override
         public Event create(int count) {

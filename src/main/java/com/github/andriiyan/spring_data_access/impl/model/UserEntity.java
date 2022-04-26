@@ -3,16 +3,29 @@ package com.github.andriiyan.spring_data_access.impl.model;
 import com.github.andriiyan.spring_data_access.api.model.User;
 import com.github.andriiyan.spring_data_access.impl.utils.JsonInstanceCreator;
 import com.google.gson.Gson;
+import jakarta.persistence.*;
 
 import java.util.Arrays;
 import java.util.Collection;
 
+@Entity
+@Table(name = "users")
 public class UserEntity implements User {
     private static final long serialVersionUID = 1L;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private long id;
+
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
+
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
+
+    public UserEntity() {
+    }
 
     public UserEntity(long id, String name, String email) {
         this.id = id;

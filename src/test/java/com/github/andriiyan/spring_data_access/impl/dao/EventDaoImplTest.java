@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -48,15 +49,15 @@ public class EventDaoImplTest {
 
     @Test
     public void getEventsForDay_shouldReturnCorrectAnswer() {
-        final Date date = new Date() ;
+        final Date date = new Date();
         final int pageSize = 3;
         final int pageNum = 1;
 
         // generating events for the 5 pages
         final List<Event> returningEvents = TestModelsFactory.generateEvents(5 * pageSize, new TestModelsFactory.DefaultEventCountInstanceFactory() {
             @Override
-            protected Date date(int count) {
-                return date;
+            protected ZonedDateTime date(int count) {
+                return ZonedDateTime.from(date.toInstant());
             }
         });
 
