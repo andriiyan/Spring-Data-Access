@@ -75,3 +75,7 @@
     ALTER TABLE IF EXISTS public.user_account
         OWNER to spring_data_access;
     ```
+
+### Database schema
+
+![Database schema](/images/db-schema.png)
