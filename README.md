@@ -4,17 +4,19 @@
 ### SQL for creating table in the Postgress
 - <b>event</b> table:
   
-    ```  
-    CREATE TABLE public.event
-            (
-            id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 ),
-            title character varying(255) NOT NULL,
-            date character varying(255) NOT NULL,
-            PRIMARY KEY (id)
-            );
+    ```
+  CREATE TABLE public.event
+     (
+     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 ),
+     title character varying(255) NOT NULL,
+     date date NOT NULL,
+     "time" time without time zone NOT NULL,
+     ticket_price real NOT NULL,
+     PRIMARY KEY (id)
+     );
 
-            ALTER TABLE IF EXISTS public.event
-            OWNER to spring_data_access;
+     ALTER TABLE IF EXISTS public.event
+     OWNER to spring_data_access;
   ```
 - <b>users</b> table:
 

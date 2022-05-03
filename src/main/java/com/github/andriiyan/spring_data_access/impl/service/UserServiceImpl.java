@@ -3,7 +3,6 @@ package com.github.andriiyan.spring_data_access.impl.service;
 import com.github.andriiyan.spring_data_access.api.dao.UserDao;
 import com.github.andriiyan.spring_data_access.api.model.User;
 import com.github.andriiyan.spring_data_access.api.service.UserService;
-import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,7 @@ class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(long userId) {
-        final User user = userDao.findById(userId);
+        final User user = userDao.findById(userId).get();
         logger.debug("getUserById was invoked with userId={} and returning {}", userId, user);
         return user;
     }
@@ -46,17 +45,17 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(User user) throws ModelNotFoundException {
-        final User mUser = userDao.update(user);
+    public User updateUser(User user) {
+        final User mUser = userDao.save(user);
         logger.debug("updateUser was invoked with user={} and returning {}", user, mUser);
         return mUser;
     }
 
     @Override
     public boolean deleteUser(long userId) {
-        final boolean result = userDao.delete(userId);
-        logger.debug("deleteUser was invoked with userId={} and returning {}", userId, result);
-        return result;
+        userDao.deleteById(userId);
+        logger.debug("deleteUser was invoked with userId={}", userId);
+        return true;
     }
 
     public void setUserDao(UserDao userDao) {

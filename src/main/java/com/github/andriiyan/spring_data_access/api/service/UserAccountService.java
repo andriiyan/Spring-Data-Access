@@ -1,7 +1,6 @@
 package com.github.andriiyan.spring_data_access.api.service;
 
 import com.github.andriiyan.spring_data_access.api.model.UserAccount;
-import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
 
 public interface UserAccountService {
 
@@ -11,7 +10,7 @@ public interface UserAccountService {
      * @param userId id of the user.
      * @return new user's account amount.
      */
-    UserAccount refillUser(double amount, long userId) throws ModelNotFoundException;
+    UserAccount refillUser(double amount, long userId);
 
     /**
      * @param userId id of the user.

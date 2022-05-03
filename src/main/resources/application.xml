@@ -4,21 +4,25 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         https://www.springframework.org/schema/beans/spring-beans.xsd"
        default-lazy-init="true">
-    <bean id="eventStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"/>
-    <bean id="ticketStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"/>
-    <bean id="userStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"/>
-    <bean id="userAccountStorage" class="com.github.andriiyan.spring_data_access.impl.storage.StorageImpl"/>
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <property name="location">
+            <value>classpath:application.properties</value>
+        </property>
+    </bean>
+    <bean id="hibernateConfiguration" class="com.github.andriiyan.spring_data_access.impl.storage.hibernate.HibernateConfiguration" lazy-init="false" destroy-method="close">
+        <constructor-arg name="configurationFileName" value="${hibernate.config.fileName}" />
+    </bean>
     <bean id="eventDao" class="com.github.andriiyan.spring_data_access.impl.dao.EventDaoImpl">
-        <constructor-arg ref="eventStorage"/>
+        <constructor-arg ref="hibernateConfiguration"/>
     </bean>
     <bean id="ticketDao" class="com.github.andriiyan.spring_data_access.impl.dao.TicketDaoImpl">
-        <constructor-arg ref="ticketStorage"/>
+        <constructor-arg ref="hibernateConfiguration"/>
     </bean>
     <bean id="userDao" class="com.github.andriiyan.spring_data_access.impl.dao.UserDaoImpl">
-        <constructor-arg ref="userStorage"/>
+        <constructor-arg ref="hibernateConfiguration"/>
     </bean>
     <bean id="userAccountDao" class="com.github.andriiyan.spring_data_access.impl.dao.UserAccountDaoImpl">
-        <constructor-arg ref="userAccountStorage"/>
+        <constructor-arg ref="hibernateConfiguration"/>
     </bean>
     <bean id="eventService" class="com.github.andriiyan.spring_data_access.impl.service.EventServiceImpl">
         <property name="eventDao" ref="eventDao"/> <!-- task requirement: dao should be injected via setters -->

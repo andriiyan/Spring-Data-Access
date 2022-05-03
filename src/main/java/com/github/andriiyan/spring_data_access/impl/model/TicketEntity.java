@@ -1,14 +1,8 @@
 package com.github.andriiyan.spring_data_access.impl.model;
 
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
-import com.github.andriiyan.spring_data_access.impl.utils.JsonInstanceCreator;
 import com.github.andriiyan.spring_data_access.impl.utils.converter.CategoryConverter;
-import com.google.gson.Gson;
 import jakarta.persistence.*;
-import org.springframework.lang.NonNull;
-
-import java.util.Arrays;
-import java.util.Collection;
 
 @Entity
 @Table(
@@ -108,16 +102,4 @@ public class TicketEntity implements Ticket {
                 '}';
     }
 
-    public static class TicketJsonInstanceCreator implements JsonInstanceCreator<Ticket> {
-
-        @Override
-        public Collection<Ticket> createInstances(String source, Gson gson) {
-            return Arrays.asList(gson.fromJson(source, TicketEntity[].class));
-        }
-
-        @Override
-        public Class<Ticket> getType() {
-            return Ticket.class;
-        }
-    }
 }

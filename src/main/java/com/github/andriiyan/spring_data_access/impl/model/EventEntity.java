@@ -2,13 +2,10 @@ package com.github.andriiyan.spring_data_access.impl.model;
 
 import com.github.andriiyan.spring_data_access.api.model.Event;
 import com.github.andriiyan.spring_data_access.impl.utils.DateUtils;
-import com.github.andriiyan.spring_data_access.impl.utils.JsonInstanceCreator;
-import com.google.gson.Gson;
 import jakarta.persistence.*;
+import org.springframework.lang.NonNull;
 
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collection;
+import java.sql.Time;
 import java.util.Date;
 
 @Entity
@@ -28,36 +25,28 @@ public class EventEntity implements Event {
     private String title;
 
     @Column(name = "date", nullable = false)
-    private String dateString;
+    @Temporal(value = TemporalType.DATE)
+    private java.sql.Date date;
+
+    @Column(name = "time", nullable = false)
+    @Temporal(value = TemporalType.TIME)
+    private java.sql.Time time;
 
     @Column(name = "ticket_price", nullable = false)
     private double ticketPrice;
 
     @Transient
-    private ZonedDateTime date;
+    private Date utcJavaDate;
 
-    public EventEntity(long id, String title, ZonedDateTime date) {
+    public EventEntity(@NonNull String title, @NonNull Date dateAndTime, double ticketPrice) {
+        this(0, title, dateAndTime, ticketPrice);
+    }
+
+    public EventEntity(long id, @NonNull String title, @NonNull Date dateAndTime, double ticketPrice) {
         this.id = id;
         this.title = title;
-        this.date = date;
-        this.dateString = date.format(DateUtils.dbDateTimeFormatter);
-    }
-
-    public EventEntity(long id, String title, ZonedDateTime date, double ticketPrice) {
-        this(id, title, date);
         this.ticketPrice = ticketPrice;
-    }
-
-    public EventEntity(long id, String title, String date) {
-        this.id = id;
-        this.title = title;
-        this.dateString = date;
-        this.date = ZonedDateTime.from(DateUtils.dbDateTimeFormatter.parse(date));
-    }
-
-    public EventEntity(long id, String title, String date, double ticketPrice) {
-        this(id, title, date);
-        this.ticketPrice = ticketPrice;
+        setDate(dateAndTime);
     }
 
     public EventEntity() {
@@ -85,13 +74,14 @@ public class EventEntity implements Event {
 
     @Override
     public Date getDate() {
-        return DateUtils.getDateFromZonedDateTime(date);
+        return utcJavaDate;
     }
 
     @Override
     public void setDate(Date date) {
-        this.date = DateUtils.fromDate(date);
-        this.dateString = DateUtils.dbDateTimeFormatter.format(this.date);
+        this.utcJavaDate = DateUtils.toUTCDate(date);
+        this.date = new java.sql.Date(utcJavaDate.getTime());
+        this.time = new Time(utcJavaDate.getTime());
     }
 
     @Override
@@ -113,16 +103,4 @@ public class EventEntity implements Event {
                 '}';
     }
 
-    public static class EventJsonInstanceCreator implements JsonInstanceCreator<Event> {
-
-        @Override
-        public Collection<Event> createInstances(String source, Gson gson) {
-            return Arrays.asList(gson.fromJson(source, EventEntity[].class));
-        }
-
-        @Override
-        public Class<Event> getType() {
-            return Event.class;
-        }
-    }
 }

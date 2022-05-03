@@ -3,10 +3,11 @@ package com.github.andriiyan.spring_data_access.api.dao;
 import com.github.andriiyan.spring_data_access.api.model.Event;
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
 import com.github.andriiyan.spring_data_access.api.model.User;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface TicketDao extends BaseDao<Ticket> {
+public interface TicketDao extends CrudRepository<Ticket, Long> {
 
     List<Ticket> getBookedTickets(User user, int pageSize, int pageNum);
 
