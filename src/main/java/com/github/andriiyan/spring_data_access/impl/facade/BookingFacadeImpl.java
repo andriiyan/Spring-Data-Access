@@ -1,5 +1,6 @@
 package com.github.andriiyan.spring_data_access.impl.facade;
 
+import com.github.andriiyan.spring_data_access.api.exceptions.NotEnoughMoneyException;
 import com.github.andriiyan.spring_data_access.api.facade.BookingFacade;
 import com.github.andriiyan.spring_data_access.api.model.Event;
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
@@ -116,10 +117,16 @@ class BookingFacadeImpl implements BookingFacade {
     }
 
     @Override
-    public Ticket bookTicket(long userId, long eventId, int place, Ticket.Category category) {
-        final Ticket ticket = ticketService.bookTicket(userId, eventId, place, category);
-        logger.debug("bookTicket was invoked with userId={}, eventId={}, place={}, category={} and returning {}", userId, eventId, place, category, ticket);
-        return ticket;
+    public Ticket bookTicket(long userId, long eventId, int place, Ticket.Category category) throws NotEnoughMoneyException {
+        final UserAccount userAccount = userAccountService.getUserAmount(userId);
+        final Event event = eventService.getEventById(eventId);
+        if (userAccount.getAmount() >= event.getTicketPrice()) {
+            userAccountService.refillUser(-event.getTicketPrice(), userId);
+            final Ticket ticket = ticketService.bookTicket(userId, eventId, place, category);
+            logger.debug("bookTicket was invoked with userId={}, eventId={}, place={}, category={} and returning {}", userId, eventId, place, category, ticket);
+            return ticket;
+        }
+        throw new NotEnoughMoneyException(event, userAccount);
     }
 
     @Override

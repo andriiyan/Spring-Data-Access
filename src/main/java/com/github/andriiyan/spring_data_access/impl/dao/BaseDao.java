@@ -139,7 +139,7 @@ abstract class BaseDao<T extends Identifierable, I extends T> implements CrudRep
     public Optional<T> findBy(@NonNull FunctionPredicateFormatter<I> predicate) {
         return withTransactionCommitAndSession(((session, transaction) -> {
             CriteriaQuery<I> cQ = withCriteriaQuery(session, (root, criteriaQuery, criteriaBuilder) -> criteriaQuery.select(root).where(predicate.predicate(root, criteriaBuilder)));
-            T result = session.createQuery(cQ).getSingleResult();
+            T result = session.createQuery(cQ).uniqueResult();
             getLogger().debug("findBy(predicate): returning result: {}", result);
             return Optional.ofNullable(result);
         }));

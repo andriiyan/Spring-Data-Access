@@ -1,5 +1,6 @@
 package com.github.andriiyan.spring_data_access.api.facade;
 
+import com.github.andriiyan.spring_data_access.api.exceptions.NotEnoughMoneyException;
 import com.github.andriiyan.spring_data_access.api.model.Event;
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
 import com.github.andriiyan.spring_data_access.api.model.User;
@@ -113,7 +114,7 @@ public interface BookingFacade {
      * @return Booked ticket object.
      * @throws IllegalStateException if this place has already been booked.
      */
-    Ticket bookTicket(long userId, long eventId, int place, Ticket.Category category);
+    Ticket bookTicket(long userId, long eventId, int place, Ticket.Category category) throws NotEnoughMoneyException;
 
     /**
      * Get all booked tickets for specified user. Tickets should be sorted by event date in descending order.
