@@ -20,7 +20,9 @@ public class UserAccountDaoImpl extends BaseDao<UserAccount, UserAccountEntity> 
 
     @Override
     public UserAccount refillUser(double amount, long userId) {
-        UserAccount userAccount = getUserAmount(userId);
+        Optional<UserAccount> userAccountOptional = findBy(((root, criteriaBuilder) -> criteriaBuilder.equal(root.get("userId"), userId)));
+        UserAccount userAccount;
+        userAccount = userAccountOptional.orElseGet(() -> new UserAccountEntity(userId, 0));
         userAccount.setAmount(userAccount.getAmount() + amount);
         userAccount = save(userAccount);
         logger.debug("refillUser was invoked with the amount: {}, userId: {} and returned {}", amount, userId, userAccount);
@@ -29,7 +31,7 @@ public class UserAccountDaoImpl extends BaseDao<UserAccount, UserAccountEntity> 
 
     @Override
     public UserAccount getUserAmount(long userId) {
-        Optional<UserAccount> result = findById(userId);
+        Optional<UserAccount> result = findBy(((root, criteriaBuilder) -> criteriaBuilder.equal(root.get("userId"), userId)));
         logger.debug("getUserAmount was invoked with the userId: {} and returned {}", userId, result);
         return result.get();
     }

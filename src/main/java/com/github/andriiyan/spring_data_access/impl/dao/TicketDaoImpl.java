@@ -34,14 +34,14 @@ class TicketDaoImpl extends BaseDao<Ticket, TicketEntity> implements TicketDao {
 
     @Override
     public List<Ticket> getBookedTickets(User user, int pageSize, int pageNum) {
-        final Iterable<Ticket> tickets = findPaging(pageNum, pageSize, ((root, criteriaBuilder) -> criteriaBuilder.equal(root.get("user_id").as(Long.class), user.getId())));
+        final Iterable<Ticket> tickets = findPaging(pageNum, pageSize, ((root, criteriaBuilder) -> criteriaBuilder.equal(root.get("userId").as(Long.class), user.getId())));
         logger.debug("getBookedTickets was invoked user={}, pageSize={}, pageNum={} and returning {}", user, pageSize, pageNum, tickets);
         return ListUtils.fromIterable(tickets);
     }
 
     @Override
     public List<Ticket> getBookedTickets(Event event, int pageSize, int pageNum) {
-        final Iterable<Ticket> tickets = findPaging(pageNum, pageSize, ((root, criteriaBuilder) -> criteriaBuilder.equal(root.get("event_id").as(Long.class), event.getId())));
+        final Iterable<Ticket> tickets = findPaging(pageNum, pageSize, ((root, criteriaBuilder) -> criteriaBuilder.equal(root.get("eventId").as(Long.class), event.getId())));
         logger.debug("getBookedTickets was invoked with event={}, pageSize={}, pageNum={} and returning {}", event, pageSize, pageNum, tickets);
         return ListUtils.fromIterable(tickets);
     }
