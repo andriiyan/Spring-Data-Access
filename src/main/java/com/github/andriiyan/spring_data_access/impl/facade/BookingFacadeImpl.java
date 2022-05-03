@@ -9,7 +9,6 @@ import com.github.andriiyan.spring_data_access.api.service.EventService;
 import com.github.andriiyan.spring_data_access.api.service.TicketService;
 import com.github.andriiyan.spring_data_access.api.service.UserAccountService;
 import com.github.andriiyan.spring_data_access.api.service.UserService;
-import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +60,7 @@ class BookingFacadeImpl implements BookingFacade {
     }
 
     @Override
-    public Event updateEvent(Event event) throws ModelNotFoundException {
+    public Event updateEvent(Event event) {
         final Event mEvent = eventService.updateEvent(event);
         logger.debug("updateEvent was invoked with {} and returning {}", event, mEvent);
         return mEvent;
@@ -103,7 +102,7 @@ class BookingFacadeImpl implements BookingFacade {
     }
 
     @Override
-    public User updateUser(User user) throws ModelNotFoundException {
+    public User updateUser(User user) {
         final User mUser = userService.updateUser(user);
         logger.debug("updateUser was invoked with {} and returning {}", user, mUser);
         return mUser;
@@ -145,7 +144,7 @@ class BookingFacadeImpl implements BookingFacade {
     }
 
     @Override
-    public UserAccount refillUser(double amount, long userId) throws ModelNotFoundException {
+    public UserAccount refillUser(double amount, long userId) {
         if (amount < 0) {
             throw new IllegalArgumentException("amount should be > 0");
         }

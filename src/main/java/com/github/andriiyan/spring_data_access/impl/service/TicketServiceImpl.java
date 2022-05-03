@@ -42,9 +42,9 @@ class TicketServiceImpl implements TicketService {
 
     @Override
     public boolean cancelTicket(long ticketId) {
-        final boolean result = ticketDao.delete(ticketId);
-        logger.debug("cancelTicket was invoked with ticketId={} and returning {}", ticketId, result);
-        return result;
+        ticketDao.deleteById(ticketId);
+        logger.debug("cancelTicket was invoked with ticketId={}", ticketId);
+        return true;
     }
 
     public void setTicketDao(TicketDao ticketDao) {

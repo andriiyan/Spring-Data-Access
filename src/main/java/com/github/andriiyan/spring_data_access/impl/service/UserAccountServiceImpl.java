@@ -3,7 +3,6 @@ package com.github.andriiyan.spring_data_access.impl.service;
 import com.github.andriiyan.spring_data_access.api.dao.UserAccountDao;
 import com.github.andriiyan.spring_data_access.api.model.UserAccount;
 import com.github.andriiyan.spring_data_access.api.service.UserAccountService;
-import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     private UserAccountDao userAccountDao;
 
     @Override
-    public UserAccount refillUser(double amount, long userId) throws ModelNotFoundException {
+    public UserAccount refillUser(double amount, long userId) {
         UserAccount result = userAccountDao.refillUser(amount, userId);
         logger.debug("refillUser was invoked with the amount: {}, userId: {}, result is {}", amount, userId, result);
         return result;

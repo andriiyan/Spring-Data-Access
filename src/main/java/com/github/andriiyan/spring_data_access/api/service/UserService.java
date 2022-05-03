@@ -1,7 +1,6 @@
 package com.github.andriiyan.spring_data_access.api.service;
 
 import com.github.andriiyan.spring_data_access.api.model.User;
-import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
 
 import java.util.List;
 
@@ -41,7 +40,7 @@ public interface UserService {
      * @param user User data for update. Should have id set.
      * @return Updated User object.
      */
-    User updateUser(User user) throws ModelNotFoundException;
+    User updateUser(User user);
 
     /**
      * Deletes user by its id.

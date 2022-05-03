@@ -1,7 +1,6 @@
 package com.github.andriiyan.spring_data_access.api.service;
 
 import com.github.andriiyan.spring_data_access.api.model.Event;
-import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
 
 import java.util.Date;
 import java.util.List;
@@ -45,7 +44,7 @@ public interface EventService {
      * @param event Event data for update. Should have id set.
      * @return Updated Event object.
      */
-    Event updateEvent(Event event) throws ModelNotFoundException;
+    Event updateEvent(Event event);
 
     /**
      * Deletes event by its id.

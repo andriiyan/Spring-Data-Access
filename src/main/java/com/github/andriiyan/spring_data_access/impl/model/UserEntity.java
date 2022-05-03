@@ -1,12 +1,8 @@
 package com.github.andriiyan.spring_data_access.impl.model;
 
 import com.github.andriiyan.spring_data_access.api.model.User;
-import com.github.andriiyan.spring_data_access.impl.utils.JsonInstanceCreator;
-import com.google.gson.Gson;
 import jakarta.persistence.*;
-
-import java.util.Arrays;
-import java.util.Collection;
+import org.springframework.lang.NonNull;
 
 @Entity
 @Table(name = "users")
@@ -27,7 +23,11 @@ public class UserEntity implements User {
     public UserEntity() {
     }
 
-    public UserEntity(long id, String name, String email) {
+    public UserEntity(@NonNull String name, @NonNull String email) {
+        this(0, name, email);
+    }
+
+    public UserEntity(long id, @NonNull String name, @NonNull String email) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -72,16 +72,4 @@ public class UserEntity implements User {
                 '}';
     }
 
-    public static class UserJsonInstanceCreator implements JsonInstanceCreator<User> {
-
-        @Override
-        public Collection<User> createInstances(String source, Gson gson) {
-            return Arrays.asList(gson.fromJson(source, UserEntity[].class));
-        }
-
-        @Override
-        public Class<User> getType() {
-            return User.class;
-        }
-    }
 }

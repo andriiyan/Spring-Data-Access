@@ -3,7 +3,6 @@ package com.github.andriiyan.spring_data_access.impl.service;
 import com.github.andriiyan.spring_data_access.api.dao.EventDao;
 import com.github.andriiyan.spring_data_access.api.model.Event;
 import com.github.andriiyan.spring_data_access.api.service.EventService;
-import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,7 @@ class EventServiceImpl implements EventService {
 
     @Override
     public Event getEventById(long eventId) {
-        final Event event = eventDao.findById(eventId);
+        final Event event = eventDao.findById(eventId).get();
         logger.debug("getEventById was invoked with userId={} and returning {}", eventId, event);
         return event;
     }
@@ -47,17 +46,17 @@ class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event updateEvent(Event event) throws ModelNotFoundException {
-        final Event mEvent = eventDao.update(event);
+    public Event updateEvent(Event event) {
+        final Event mEvent = eventDao.save(event);
         logger.debug("updateEvent was invoked with event={} and returning {}", event, mEvent);
         return mEvent;
     }
 
     @Override
     public boolean deleteEvent(long eventId) {
-        final boolean result = eventDao.delete(eventId);
-        logger.debug("deleteEvent was invoked with eventId={} and returning {}", eventId, result);
-        return result;
+        eventDao.deleteById(eventId);
+        logger.debug("deleteEvent was invoked with eventId={}", eventId);
+        return true;
     }
 
     public void setEventDao(EventDao eventDao) {

@@ -4,7 +4,6 @@ import com.github.andriiyan.spring_data_access.api.model.Event;
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
 import com.github.andriiyan.spring_data_access.api.model.User;
 import com.github.andriiyan.spring_data_access.api.model.UserAccount;
-import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
 
 import java.util.Date;
 import java.util.List;
@@ -53,7 +52,7 @@ public interface BookingFacade {
      * @param event Event data for update. Should have id set.
      * @return Updated Event object.
      */
-    Event updateEvent(Event event) throws ModelNotFoundException;
+    Event updateEvent(Event event);
 
     /**
      * Deletes event by its id.
@@ -96,7 +95,7 @@ public interface BookingFacade {
      * @param user User data for update. Should have id set.
      * @return Updated User object.
      */
-    User updateUser(User user) throws ModelNotFoundException;
+    User updateUser(User user);
 
     /**
      * Deletes user by its id.
@@ -147,7 +146,7 @@ public interface BookingFacade {
      * @param userId id of the user.
      * @return new user's account amount.
      */
-    UserAccount refillUser(double amount, long userId) throws ModelNotFoundException;
+    UserAccount refillUser(double amount, long userId);
 
     /**
      * @param userId id of the user.
