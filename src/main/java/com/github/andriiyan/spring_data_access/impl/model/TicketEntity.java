@@ -33,6 +33,10 @@ public class TicketEntity implements Ticket {
     public TicketEntity() {
     }
 
+    public TicketEntity(long eventId, long userId, Category category, int place) {
+        this(0, eventId, userId, category, place);
+    }
+
     public TicketEntity(long id, long eventId, long userId, Category category, int place) {
         this.id = id;
         this.eventId = eventId;
@@ -102,4 +106,27 @@ public class TicketEntity implements Ticket {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TicketEntity)) return false;
+
+        TicketEntity that = (TicketEntity) o;
+
+        if (id != that.id) return false;
+        if (eventId != that.eventId) return false;
+        if (userId != that.userId) return false;
+        if (place != that.place) return false;
+        return category == that.category;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (int) (eventId ^ (eventId >>> 32));
+        result = 31 * result + (int) (userId ^ (userId >>> 32));
+        result = 31 * result + (category != null ? category.hashCode() : 0);
+        result = 31 * result + place;
+        return result;
+    }
 }

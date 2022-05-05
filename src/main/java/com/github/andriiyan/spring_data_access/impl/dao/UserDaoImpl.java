@@ -41,7 +41,7 @@ class UserDaoImpl extends BaseDao<User, UserEntity> implements UserDao {
     @Override
     public List<User> getUsersByName(String name, int pageSize, int pageNum) {
         final Iterable<User> users = findPaging(pageNum, pageSize, ((root, criteriaBuilder) -> criteriaBuilder.like(
-                root.get("email").as(String.class), "%" + name + "%"
+                root.get("name"), "%" + name + "%"
         )));
         logger.debug("getUsersByName was invoked with name={}, pageSize={}, pageNum={} and returning {}", name, pageSize, pageNum, users);
         return ListUtils.fromIterable(users);

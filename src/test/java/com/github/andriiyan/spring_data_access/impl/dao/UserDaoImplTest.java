@@ -1,56 +1,39 @@
 package com.github.andriiyan.spring_data_access.impl.dao;
 
+import com.github.andriiyan.spring_data_access.TestConfiguration;
 import com.github.andriiyan.spring_data_access.api.model.User;
-import com.github.andriiyan.spring_data_access.api.storage.Storage;
-import com.github.andriiyan.spring_data_access.impl.TestModelsFactory;
+import com.github.andriiyan.spring_data_access.impl.model.UserEntity;
+import jakarta.persistence.PersistenceException;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
-@RunWith(MockitoJUnitRunner.class)
-public class UserDaoImplTest {
+public class UserDaoImplTest extends TestConfiguration {
 
-    @Mock
-    private Storage<User> userStorage;
-    @InjectMocks
-    private UserDaoImpl userDao;
+    private final UserDaoImpl userDao = new UserDaoImpl(configuration);
 
     @Test
     public void getUserByEmail() {
         final String email = "email@test.com";
-        User returningUser = TestModelsFactory.generateSingleUser();
-        returningUser.setEmail(email);
-        Mockito.when(userDao.findAll()).thenReturn(Collections.singletonList(returningUser));
 
-        final User returnedUser1 = userDao.getUserByEmail(email);
+        // save some users
+        userDao.save(new UserEntity("name", "email"));
+        User user = userDao.save(new UserEntity("user", email));
+        userDao.save(new UserEntity("user1", email + "1"));
 
-        Assert.assertEquals(returningUser, returnedUser1);
-        Mockito.verify(userStorage).findAll();
+        Assert.assertEquals(user, userDao.getUserByEmail(email));
 
-        // case when there is no user with such email
-        returningUser.setEmail("");
+        // case there are no user with this email
+        try {
+            userDao.getUserByEmail(email + "-no-existing");
+            Assert.fail("Should fail because there is no user with email:" + email + " in the database");
+        } catch (NoSuchElementException ignore) {
+            // this is a success case
+        }
 
-        final User returnedUser2 = userDao.getUserByEmail(email);
-
-        Assert.assertNull(returnedUser2);
-        Mockito.verify(userStorage, Mockito.times(2)).findAll();
-
-        // case when it's more than a 1 user with such email
-        final List<User> userList = TestModelsFactory.generateUsers(3);
-        userList.forEach(user -> user.setEmail(email));
-        Mockito.when(userStorage.findAll()).thenReturn(userList);
-
-        final User returnedUser3 = userDao.getUserByEmail(email);
-
-        Assert.assertEquals(userList.get(0), returnedUser3);
-        Mockito.verify(userStorage, Mockito.times(3)).findAll();
     }
 
     @Test
@@ -58,27 +41,260 @@ public class UserDaoImplTest {
         final String searchingName = "name";
         int pageSize = 3;
         int pageNum = 2;
-        List<User> returningUsers = TestModelsFactory.generateUsers((pageNum + 1) * pageSize,
-                new TestModelsFactory.DefaultUserCountInstanceFactory() {
-                    @Override
-                    protected String name(int count) {
-                        return searchingName + count;
-                    }
-                });
-        Mockito.when(userStorage.findAll()).thenReturn(returningUsers);
 
-        List<User> returnedUsers = userDao.getUsersByName(searchingName, pageSize, pageNum);
+        final List<User> users = new ArrayList<>();
 
-        Assert.assertEquals(returningUsers.subList(pageNum * pageSize, (pageNum + 1) * pageSize), returnedUsers);
-        Mockito.verify(userStorage).findAll();
+        for (int i = 0; i < (pageNum * pageSize) + pageSize; i++) {
+            // save some not suitable users
+            userDao.save(new UserEntity("not suitable" + i, "email" + i));
+            users.add(userDao.save(new UserEntity(searchingName + i, "email@" + i)));
+        }
 
-        // case when there are no users that contains that name
-        returningUsers = Collections.emptyList();
-        Mockito.when(userStorage.findAll()).thenReturn(returningUsers);
+        Assert.assertEquals(
+                users.subList(pageSize * pageNum, pageSize * pageNum + pageSize),
+                userDao.getUsersByName(searchingName, pageSize, pageNum)
+        );
 
-        returnedUsers = userDao.getUsersByName(searchingName, pageSize, pageNum);
-        Assert.assertEquals(returningUsers, returnedUsers);
-        Mockito.verify(userStorage, Mockito.times(2)).findAll();
+    }
+
+    // Testing BaseDao functions
+
+    @Test
+    public void getEntityClass() {
+        Assert.assertEquals(UserEntity.class, userDao.getEntityClass());
+    }
+
+    @Test
+    public void save_shouldSaveUser() {
+        UserEntity savingUser = new UserEntity("Name", "email");
+        UserEntity savedUser = userDao.save(savingUser);
+
+        // ID should be sett by saving method, so both entities should have identical fields
+        Assert.assertEquals(savingUser, savedUser);
+
+        User getUser = userDao.findById(savedUser.getId()).get();
+        Assert.assertEquals(savedUser, getUser);
+    }
+
+    @Test
+    public void save_shouldFailForSameName() {
+        UserEntity savingUser = new UserEntity("Name", "email");
+        UserEntity savedUser = userDao.save(savingUser);
+        try {
+            userDao.save(new UserEntity(savedUser.getName(), "test"));
+            Assert.fail("Should fail because database already has a user with name: " + savedUser.getName());
+        } catch (PersistenceException ignored) {
+
+        }
+    }
+
+    @Test
+    public void save_shouldFailForSameEmail() {
+        UserEntity savingUser = new UserEntity("Name", "email");
+        UserEntity savedUser = userDao.save(savingUser);
+        try {
+            userDao.save(new UserEntity("Test", savedUser.getEmail()));
+            Assert.fail("Should fail because database already has a user with email: " + savedUser.getEmail());
+        } catch (PersistenceException ignored) {
+
+        }
+    }
+
+    @Test
+    public void save_shouldUpdateUserWithId() {
+        final String newName = "new name";
+        final String newEmail = "new email";
+        User user = userDao.save(new UserEntity("name", "email"));
+        user.setName(newName);
+        user.setEmail(newEmail);
+        User updatedUser = userDao.save(user);
+
+        Assert.assertEquals(newEmail, updatedUser.getEmail());
+        Assert.assertEquals(newName, updatedUser.getName());
+    }
+
+    @Test
+    public void saveAll() {
+        List<User> users = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            users.add(new UserEntity("name #" + i, "email" + i));
+        }
+
+        Iterable<User> savedUsers = userDao.saveAll(users);
+        Assert.assertEquals(users, savedUsers);
+    }
+
+    @Test
+    public void findById() {
+        List<User> users = new ArrayList<>();
+
+        int size = 10;
+        for (int i = 0; i < size; i++) {
+            users.add(new UserEntity("name #" + i, "email" + i));
+        }
+
+        Iterable<User> savedUsers = userDao.saveAll(users);
+
+        for (User user : savedUsers) {
+            Assert.assertEquals(user, userDao.findById(user.getId()).get());
+        }
+
+        // should return an empty optional, because user is not in the database
+        Assert.assertTrue(userDao.findById(size + 2L).isEmpty());
+    }
+
+    @Test
+    public void findBy() {
+        List<User> users = new ArrayList<>();
+
+        int size = 10;
+        for (int i = 0; i < size; i++) {
+            users.add(new UserEntity("name #" + i, "email" + i));
+        }
+
+        Iterable<User> savedUsers = userDao.saveAll(users);
+
+        for (User user : savedUsers) {
+            Assert.assertEquals(user, userDao.findBy(((root, criteriaBuilder) -> criteriaBuilder.equal(root.get("email"), user.getEmail()))).get());
+        }
+
+    }
+
+    @Test
+    public void existsById() {
+        List<User> users = new ArrayList<>();
+
+        int size = 10;
+        for (int i = 0; i < size; i++) {
+            users.add(new UserEntity("name #" + i, "email" + i));
+        }
+
+        Iterable<User> savedUsers = userDao.saveAll(users);
+
+        for (User user : savedUsers) {
+            Assert.assertTrue(userDao.existsById(user.getId()));
+        }
+
+        Assert.assertFalse(userDao.existsById(size + 2L));
+    }
+
+    @Test
+    public void findAll() {
+        List<User> users = new ArrayList<>();
+
+        int size = 10;
+        for (int i = 0; i < size; i++) {
+            users.add(new UserEntity("name #" + i, "email" + i));
+        }
+
+        Iterable<User> savedUsers = userDao.saveAll(users);
+        Assert.assertEquals(savedUsers, userDao.findAll());
+    }
+
+    @Test
+    public void findAllById() {
+        List<User> users = new ArrayList<>();
+        List<Long> integers = new ArrayList<>();
+
+        int size = 10;
+        for (int i = 0; i < size; i++) {
+            users.add(new UserEntity("name #" + i, "email" + i));
+            if (i < size / 2) {
+                integers.add((long) i);
+            }
+        }
+
+        List<User> savedUsers = (List<User>) userDao.saveAll(users);
+        Assert.assertEquals(savedUsers.subList(0, size / 2 - 1), userDao.findAllById(integers));
+    }
+
+    @Test
+    public void count() {
+        List<User> users = new ArrayList<>();
+
+        int size = 10;
+        for (int i = 0; i < size; i++) {
+            users.add(new UserEntity("name #" + i, "email" + i));
+        }
+
+        List<User> savedUsers = (List<User>) userDao.saveAll(users);
+        Assert.assertEquals(size, userDao.count());
+    }
+
+    @Test
+    public void deleteById() {
+        List<User> users = new ArrayList<>();
+
+        int size = 10;
+        for (int i = 0; i < size; i++) {
+            users.add(new UserEntity("name #" + i, "email" + i));
+        }
+
+        List<User> savedUsers = (List<User>) userDao.saveAll(users);
+        userDao.deleteById(users.get(0).getId());
+        Assert.assertEquals(savedUsers.subList(1, users.size()), userDao.findAll());
+    }
+
+    @Test
+    public void delete() {
+        List<User> users = new ArrayList<>();
+
+        int size = 10;
+        for (int i = 0; i < size; i++) {
+            users.add(new UserEntity("name #" + i, "email" + i));
+        }
+
+        List<User> savedUsers = (List<User>) userDao.saveAll(users);
+        userDao.delete(users.get(0));
+        Assert.assertEquals(savedUsers.subList(1, users.size()), userDao.findAll());
+    }
+
+    @Test
+    public void deleteAllById() {
+        List<User> users = new ArrayList<>();
+        List<Long> ids = new ArrayList<>();
+
+        int size = 10;
+        for (int i = 0; i < size; i++) {
+            users.add(new UserEntity("name #" + i, "email" + i));
+            if (i < size / 2) {
+                ids.add((long) i);
+            }
+        }
+
+        List<User> savedUsers = (List<User>) userDao.saveAll(users);
+        userDao.deleteAllById(ids);
+        Assert.assertEquals(savedUsers.subList(size / 2 - 1, size), userDao.findAll());
+    }
+
+    @Test
+    public void deleteAllByEntity() {
+        List<User> users = new ArrayList<>();
+
+        int size = 10;
+        for (int i = 0; i < size; i++) {
+            users.add(new UserEntity("name #" + i, "email" + i));
+        }
+
+        List<User> savedUsers = (List<User>) userDao.saveAll(users);
+        userDao.deleteAll(users);
+        Assert.assertTrue(((List<User>) userDao.findAll()).isEmpty());
+    }
+
+    @Test
+    public void deleteAll() {
+        List<User> users = new ArrayList<>();
+
+        int size = 10;
+        for (int i = 0; i < size; i++) {
+            users.add(new UserEntity("name #" + i, "email" + i));
+        }
+
+        List<User> savedUsers = (List<User>) userDao.saveAll(users);
+        userDao.deleteAll();
+        Assert.assertTrue(((List<User>) userDao.findAll()).isEmpty());
+        Assert.assertEquals(0, userDao.count());
     }
 
 }

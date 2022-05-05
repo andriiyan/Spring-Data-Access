@@ -1,14 +1,16 @@
 package com.github.andriiyan.spring_data_access.impl.facade;
 
+import com.github.andriiyan.spring_data_access.api.exceptions.NotEnoughMoneyException;
 import com.github.andriiyan.spring_data_access.api.model.Event;
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
 import com.github.andriiyan.spring_data_access.api.model.User;
+import com.github.andriiyan.spring_data_access.api.model.UserAccount;
 import com.github.andriiyan.spring_data_access.api.service.EventService;
 import com.github.andriiyan.spring_data_access.api.service.TicketService;
+import com.github.andriiyan.spring_data_access.api.service.UserAccountService;
 import com.github.andriiyan.spring_data_access.api.service.UserService;
-import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
 import com.github.andriiyan.spring_data_access.impl.model.EventEntity;
-import com.github.andriiyan.spring_data_access.impl.model.UserEntity;
+import com.github.andriiyan.spring_data_access.impl.model.UserAccountEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +32,8 @@ public class BookingFacadeImplTest {
     private TicketService ticketService;
     @Mock
     private UserService userService;
+    @Mock
+    private UserAccountService userAccountService;
 
     @InjectMocks
     private BookingFacadeImpl bookingFacade;
@@ -99,7 +103,7 @@ public class BookingFacadeImplTest {
     }
 
     @Test
-    public void updateEvent_should_be_delegated() throws ModelNotFoundException {
+    public void updateEvent_should_be_delegated()  {
         Event returningEvent = Mockito.mock(Event.class);
         Event updatingEvent = Mockito.mock(Event.class);
         Mockito.when(eventService.updateEvent(updatingEvent)).thenReturn(returningEvent);
@@ -108,15 +112,6 @@ public class BookingFacadeImplTest {
         Assert.assertEquals(returningEvent, facadeEvent);
 
         Mockito.verify(eventService).updateEvent(updatingEvent);
-    }
-
-    @Test(expected = ModelNotFoundException.class)
-    public void updateEvent_should_throw_an_exception() throws ModelNotFoundException {
-        long id = 100;
-        Event updatingEvent = Mockito.mock(Event.class);
-        Mockito.when(eventService.updateEvent(updatingEvent)).thenThrow(new ModelNotFoundException(id, EventEntity.class.getName()));
-
-        bookingFacade.updateEvent(updatingEvent);
     }
 
     @Test
@@ -182,7 +177,7 @@ public class BookingFacadeImplTest {
     }
 
     @Test
-    public void updateUser_should_be_delegated() throws ModelNotFoundException {
+    public void updateUser_should_be_delegated() {
         User returningUser = Mockito.mock(User.class);
         User updatingUser = Mockito.mock(User.class);
         Mockito.when(userService.updateUser(updatingUser)).thenReturn(returningUser);
@@ -191,15 +186,6 @@ public class BookingFacadeImplTest {
         Assert.assertEquals(returningUser, facadeUser);
 
         Mockito.verify(userService).updateUser(updatingUser);
-    }
-
-    @Test(expected = ModelNotFoundException.class)
-    public void updateUser_should_throw_an_exception() throws ModelNotFoundException {
-        User updatingUser = Mockito.mock(User.class);
-        long id = 10;
-        Mockito.when(userService.updateUser(updatingUser)).thenThrow(new ModelNotFoundException(id, UserEntity.class.getName()));
-
-        bookingFacade.updateUser(updatingUser);
     }
 
     @Test
@@ -214,12 +200,35 @@ public class BookingFacadeImplTest {
     }
 
     @Test
-    public void bookTicket_should_be_delegated() {
+    public void bookTicket_should_be_delegated() throws NotEnoughMoneyException {
         long userId = random.nextLong();
         long eventId = random.nextLong();
         int place = random.nextInt();
         Ticket returningTicket = Mockito.mock(Ticket.class);
+        Event event = new EventEntity(eventId, "a", new Date(), 10);
+        UserAccount userAccount = new UserAccountEntity(userId, 100);
 
+        Mockito.when(eventService.getEventById(eventId)).thenReturn(event);
+        Mockito.when(userAccountService.getUserAmount(userId)).thenReturn(userAccount);
+        Mockito.when(ticketService.bookTicket(userId, eventId, place, Ticket.Category.BAR)).thenReturn(returningTicket);
+
+        Ticket facadeTicket = bookingFacade.bookTicket(userId, eventId, place, Ticket.Category.BAR);
+        Assert.assertEquals(returningTicket, facadeTicket);
+
+        Mockito.verify(ticketService).bookTicket(userId, eventId, place, Ticket.Category.BAR);
+    }
+
+    @Test(expected = NotEnoughMoneyException.class)
+    public void bookTicket_throw_NotEnoughMoneyException() throws NotEnoughMoneyException {
+        long userId = random.nextLong();
+        long eventId = random.nextLong();
+        int place = random.nextInt();
+        Ticket returningTicket = Mockito.mock(Ticket.class);
+        Event event = new EventEntity(eventId, "a", new Date(), 1000);
+        UserAccount userAccount = new UserAccountEntity(userId, event.getTicketPrice() - 10);
+
+        Mockito.when(eventService.getEventById(eventId)).thenReturn(event);
+        Mockito.when(userAccountService.getUserAmount(userId)).thenReturn(userAccount);
         Mockito.when(ticketService.bookTicket(userId, eventId, place, Ticket.Category.BAR)).thenReturn(returningTicket);
 
         Ticket facadeTicket = bookingFacade.bookTicket(userId, eventId, place, Ticket.Category.BAR);

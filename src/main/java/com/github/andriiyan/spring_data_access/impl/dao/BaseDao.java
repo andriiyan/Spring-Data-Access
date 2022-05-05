@@ -118,8 +118,13 @@ abstract class BaseDao<T extends Identifierable, I extends T> implements CrudRep
     public <S extends T> Iterable<S> saveAll(@NonNull Iterable<S> entities) {
         return withTransactionCommitAndSession(((session, transaction) -> {
             for (S entity : entities) {
-                session.persist(entity);
-                getLogger().debug("saveAll: Saving {}", entity);
+                if (entity.getId() != 0) {
+                    session.merge(entity);
+                    getLogger().debug("saveAll: Merge {}", entity);
+                } else {
+                    session.persist(entity);
+                    getLogger().debug("saveAll: Saving {}", entity);
+                }
             }
             return entities;
         }));
@@ -164,7 +169,7 @@ abstract class BaseDao<T extends Identifierable, I extends T> implements CrudRep
     }
 
     @NonNull
-    public Iterable<T> findAll(@NonNull FunctionPredicateFormatter<I> predicate) {
+    public Iterable<T> findAllBy(@NonNull FunctionPredicateFormatter<I> predicate) {
         return withTransactionCommitAndSession(((session, transaction) -> {
             CriteriaQuery<I> cQ = withCriteriaQuery(session, (root, criteriaQuery, criteriaBuilder) -> criteriaQuery.select(root).where(predicate.predicate(root, criteriaBuilder)));
             Iterable<I> result = session.createQuery(cQ).getResultList();

@@ -9,14 +9,15 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 
-class HibernateConfiguration implements ISessionFactoryProvider {
+public class HibernateConfiguration implements ISessionFactoryProvider {
 
     private final ServiceRegistry serviceRegistry;
     private final SessionFactory sessionFactory;
 
-    private HibernateConfiguration(@NonNull String configurationFileName) {
+    public HibernateConfiguration(@NonNull String configurationFileName) {
         Configuration configuration = new Configuration().configure(configurationFileName)
                 .addAnnotatedClass(EventEntity.class)
                 .addAnnotatedClass(UserEntity.class)

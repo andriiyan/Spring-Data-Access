@@ -1,10 +1,14 @@
 package com.github.andriiyan.spring_data_access;
 
 import com.github.andriiyan.spring_data_access.api.facade.BookingFacade;
+import com.github.andriiyan.spring_data_access.api.model.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.util.Date;
+import java.util.List;
 
 public class Main {
 
@@ -17,8 +21,8 @@ public class Main {
 
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext(
-                "application.xml",
-                "application-local.xml"
+                "application-local.xml",
+                "application.xml"
                 );
         logger.info("Container has been configured");
         final BookingFacade bookingFacade = context.getBean(BookingFacade.class);
@@ -33,6 +37,8 @@ public class Main {
 //        } catch (NotEnoughMoneyException e) {
 //            throw new RuntimeException(e);
 //        }
+//        List<Event> eventList = bookingFacade.getEventsByTitle("Test title", 5, 0);
+//        List<Event> eventList = bookingFacade.getEventsForDay(new Date(), 0, 5);
 
         logger.info("App finishes it work");
     }

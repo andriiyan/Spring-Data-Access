@@ -27,9 +27,7 @@ public class UserAccountEntity implements UserAccount {
     }
 
     public UserAccountEntity(long userId, double amount) {
-        this.id = 0;
-        this.userId = userId;
-        this.amount = 0;
+        this(0, userId, amount);
     }
 
     public long getId() {
@@ -56,5 +54,28 @@ public class UserAccountEntity implements UserAccount {
     @Override
     public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserAccountEntity)) return false;
+
+        UserAccountEntity that = (UserAccountEntity) o;
+
+        if (id != that.id) return false;
+        if (userId != that.userId) return false;
+        return Double.compare(that.amount, amount) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (int) (userId ^ (userId >>> 32));
+        temp = Double.doubleToLongBits(amount);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 }

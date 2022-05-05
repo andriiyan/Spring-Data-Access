@@ -33,7 +33,8 @@ class EventDaoImpl extends BaseDao<Event, EventEntity> implements EventDao {
 
     @Override
     public List<Event> getEventsByTitle(String title, int pageSize, int pageNum) {
-        final Iterable<Event> events = findPaging(pageNum, pageSize, (root, criteriaBuilder) -> criteriaBuilder.like(root.get("title").as(String.class), "%" + title + "%"));
+        // TODO this query for some reason is not working, but SQL seems to be good
+        final Iterable<Event> events = findPaging(pageNum, pageSize, (root, criteriaBuilder) -> criteriaBuilder.like(root.get("title"), "%" + title + "%"));
         logger.debug("getEventsByTitle was invoked with title={}, pageSize={}, pageNum={} and returning {}", title, pageSize, pageNum, events);
         return ListUtils.fromIterable(events);
     }
