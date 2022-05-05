@@ -2,8 +2,7 @@ package com.github.andriiyan.spring_data_access.impl.service;
 
 import com.github.andriiyan.spring_data_access.api.dao.EventDao;
 import com.github.andriiyan.spring_data_access.api.model.Event;
-import com.github.andriiyan.spring_data_access.impl.TestModelsFactory;
-import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
+import com.github.andriiyan.spring_data_access.impl.model.EventEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,8 +11,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventServiceImplTest {
@@ -27,11 +28,11 @@ public class EventServiceImplTest {
     @Test
     public void getEventById_shouldReturnSameModelAsDao() {
         final long eventId = 100;
-        final Event returningEvent = TestModelsFactory.generateSingleEvent();
+        final Optional<Event> returningEvent = Optional.of(new EventEntity());
         Mockito.when(eventDao.findById(eventId)).thenReturn(returningEvent);
 
         final Event returnedEvent = eventService.getEventById(eventId);
-        Assert.assertEquals(returningEvent, returnedEvent);
+        Assert.assertEquals(returningEvent.get(), returnedEvent);
         Mockito.verify(eventDao).findById(eventId);
     }
 
@@ -42,7 +43,10 @@ public class EventServiceImplTest {
         final int pageNum = 1;
 
         // generating events for the 5 pages
-        final List<Event> returningEvents = TestModelsFactory.generateEvents(5 * pageSize);
+        final List<Event> returningEvents = new ArrayList<>();
+        for (int i = 0; i < 5 * pageSize; i++) {
+            returningEvents.add(new EventEntity("name " + i, new Date(), i));
+        }
 
         Mockito.when(eventDao.getEventsByTitle(title, pageSize, pageNum)).thenReturn(returningEvents);
         final List<Event> returnedEvents = eventService.getEventsByTitle(title, pageSize, pageNum);
@@ -59,7 +63,10 @@ public class EventServiceImplTest {
         final int pageNum = 1;
 
         // generating events for the 5 pages
-        final List<Event> returningEvents = TestModelsFactory.generateEvents(5 * pageSize);
+        final List<Event> returningEvents = new ArrayList<>();
+        for (int i = 0; i < 5 * pageSize; i++) {
+            returningEvents.add(new EventEntity("name " + i, new Date(), i));
+        }
 
         Mockito.when(eventDao.getEventsForDay(date, pageSize, pageNum)).thenReturn(returningEvents);
         final List<Event> returnedEvents = eventService.getEventsForDay(date, pageSize, pageNum);
@@ -71,8 +78,8 @@ public class EventServiceImplTest {
 
     @Test
     public void createEvent_shouldReturnSameModelAsDao() {
-        final Event savingEvent = TestModelsFactory.generateSingleEvent();
-        final Event returningEvent = TestModelsFactory.generateSingleEvent();
+        final Event savingEvent = new EventEntity("name", new Date(), 100);
+        final Event returningEvent = new EventEntity("test", new Date(), 50);
         Mockito.when(eventDao.save(savingEvent)).thenReturn(returningEvent);
 
         final Event returnedEvent = eventService.createEvent(savingEvent);
@@ -81,23 +88,23 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void updateEvent_shouldReturnSameModelAsDao() throws ModelNotFoundException {
-        final Event updatingEvent = TestModelsFactory.generateSingleEvent();
-        final Event returningEvent = TestModelsFactory.generateSingleEvent();
-        Mockito.when(eventDao.update(updatingEvent)).thenReturn(returningEvent);
+    public void updateEvent_shouldReturnSameModelAsDao() {
+        final Event savingEvent = new EventEntity("name", new Date(), 100);
+        final Event returningEvent = new EventEntity("test", new Date(), 50);
+        Mockito.when(eventDao.save(savingEvent)).thenReturn(returningEvent);
 
-        final Event returnedEvent = eventService.updateEvent(updatingEvent);
+        final Event returnedEvent = eventService.updateEvent(savingEvent);
         Assert.assertEquals(returningEvent, returnedEvent);
-        Mockito.verify(eventDao).update(updatingEvent);
+        Mockito.verify(eventDao).save(savingEvent);
     }
 
     @Test
     public void delete_shouldReturnSameModelAsDao() {
         final long eventId = 100;
-        Mockito.when(eventDao.delete(eventId)).thenReturn(true);
+        Mockito.doNothing().when(eventDao).deleteById(eventId);
 
         Assert.assertTrue(eventService.deleteEvent(eventId));
-        Mockito.verify(eventDao).delete(eventId);
+        Mockito.verify(eventDao).deleteById(eventId);
     }
 
 }

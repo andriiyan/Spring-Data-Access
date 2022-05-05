@@ -2,8 +2,7 @@ package com.github.andriiyan.spring_data_access.impl.service;
 
 import com.github.andriiyan.spring_data_access.api.dao.UserDao;
 import com.github.andriiyan.spring_data_access.api.model.User;
-import com.github.andriiyan.spring_data_access.impl.TestModelsFactory;
-import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
+import com.github.andriiyan.spring_data_access.impl.model.UserEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,8 +11,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceImplTest {
@@ -26,19 +27,19 @@ public class UserServiceImplTest {
     @Test
     public void getUserById() {
         final long userId = 123;
-        final User returningUser = TestModelsFactory.generateSingleUser();
+        final Optional<User> returningUser = Optional.of(new UserEntity("name", "email"));
         Mockito.when(userDao.findById(userId)).thenReturn(returningUser);
 
         final User returnedUser = userService.getUserById(userId);
 
-        Assert.assertEquals(returningUser, returnedUser);
+        Assert.assertEquals(returningUser.get(), returnedUser);
         Mockito.verify(userDao).findById(userId);
     }
 
     @Test
     public void getUserByEmail() {
         final String email = "email@test.com";
-        User returningUser = TestModelsFactory.generateSingleUser();
+        User returningUser = new UserEntity("name", "email");
         returningUser.setEmail(email);
         Mockito.when(userDao.getUserByEmail(email)).thenReturn(returningUser);
 
@@ -53,7 +54,12 @@ public class UserServiceImplTest {
         final String searchingName = "name";
         int pageSize = 3;
         int pageNum = 2;
-        List<User> returningUsers = TestModelsFactory.generateUsers((pageNum + 1) * pageSize);
+
+        List<User> returningUsers = new ArrayList<>();
+        for (int i = 0; i < (pageNum + 1) * pageSize; i++) {
+            returningUsers.add(new UserEntity("name " + i, "email " + i));
+        }
+
         Mockito.when(userDao.getUsersByName(searchingName, pageSize, pageNum)).thenReturn(returningUsers);
 
         List<User> returnedUsers = userService.getUsersByName(searchingName, pageSize, pageNum);
@@ -72,8 +78,8 @@ public class UserServiceImplTest {
 
     @Test
     public void createUser() {
-        final User user = TestModelsFactory.generateSingleUser();
-        final User returningUser = TestModelsFactory.generateSingleUser();
+        final User user = new UserEntity("name", "email");
+        final User returningUser = new UserEntity("name1", "email1");
         Mockito.when(userDao.save(user)).thenReturn(returningUser);
 
         final User returnedUser = userService.createUser(user);
@@ -83,25 +89,25 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void updateUser() throws ModelNotFoundException {
-        final User user = TestModelsFactory.generateSingleUser();
-        final User returningUser = TestModelsFactory.generateSingleUser();
-        Mockito.when(userDao.update(user)).thenReturn(returningUser);
+    public void updateUser() {
+        final User user = new UserEntity("name", "email");
+        final User returningUser = new UserEntity("name1", "email1");
+        Mockito.when(userDao.save(user)).thenReturn(returningUser);
 
         final User returnedUser = userService.updateUser(user);
 
         Assert.assertEquals(returningUser, returnedUser);
-        Mockito.verify(userDao).update(user);
+        Mockito.verify(userDao).save(user);
     }
 
     @Test
     public void deleteUser() {
-        final User user = TestModelsFactory.generateSingleUser();
-        Mockito.when(userDao.delete(user.getId())).thenReturn(true);
+        long userId = 123;
+        Mockito.doNothing().when(userDao).deleteById(userId);
 
-        final boolean result = userService.deleteUser(user.getId());
+        final boolean result = userService.deleteUser(userId);
 
         Assert.assertTrue(result);
-        Mockito.verify(userDao).delete(user.getId());
+        Mockito.verify(userDao).deleteById(userId);
     }
 }
