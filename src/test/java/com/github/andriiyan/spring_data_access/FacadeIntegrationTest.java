@@ -18,7 +18,7 @@ public class FacadeIntegrationTest extends BaseContainerTest {
     }
 
     @Test
-    public void facade_should_write_data_into_the_storage() throws NotEnoughMoneyException {
+    public void refill_book_ticket_check_amount() throws NotEnoughMoneyException {
         final User user = bookingFacade.createUser(new UserEntity("Andrii", "Test"));
         final Event event = bookingFacade.createEvent(new EventEntity("Event", new Date(), 100));
         bookingFacade.refillUser(event.getTicketPrice() + 10, user.getId());
@@ -26,6 +26,20 @@ public class FacadeIntegrationTest extends BaseContainerTest {
         Assert.assertEquals(user, userDao.findById(user.getId()).get());
         Assert.assertEquals(ticket, ticketDao.findById(ticket.getId()).get());
         Assert.assertEquals(ticket, bookingFacade.getBookedTickets(user, 1, 0).get(0));
+    }
+
+    @Test(expected = NotEnoughMoneyException.class)
+    public void should_throw_an_exception_if_user_has_no_enough_money() throws NotEnoughMoneyException {
+        final User user = bookingFacade.createUser(new UserEntity("Andrii", "Test"));
+        final Event event = bookingFacade.createEvent(new EventEntity("Event", new Date(), 100));
+        bookingFacade.refillUser(event.getTicketPrice() - 10, user.getId());
+        final Ticket ticket = bookingFacade.bookTicket(user.getId(), event.getId(), 4, Ticket.Category.PREMIUM);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void refill_for_negative_amount_should_throw_an_exception() {
+        final User user = bookingFacade.createUser(new UserEntity("Andrii", "Test"));
+        bookingFacade.refillUser(-500, user.getId());
     }
 
 }
