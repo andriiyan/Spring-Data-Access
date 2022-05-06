@@ -1,5 +1,13 @@
 # <h>Spring Data Access Training<h>
 
+### Profiles
+
+App supports 2 profiles:
+  - `local`;
+  - `default`;
+
+The `default` profile is enabled by default and targets Hibernate to the local PostgreSQL database.
+The `local` profile should be enabled by using the `spring.profiles.active=local`, this one is targerting Hibernate to the H2 in-memmory database.
 
 ### SQL for creating table in the Postgress
 - <b>event</b> table:
