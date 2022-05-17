@@ -10,6 +10,9 @@ import com.github.andriiyan.spring_data_access.api.service.EventService;
 import com.github.andriiyan.spring_data_access.api.service.TicketService;
 import com.github.andriiyan.spring_data_access.api.service.UserAccountService;
 import com.github.andriiyan.spring_data_access.api.service.UserService;
+import com.github.andriiyan.spring_data_access.impl.model.EventEntity;
+import com.github.andriiyan.spring_data_access.impl.model.TicketEntity;
+import com.github.andriiyan.spring_data_access.impl.model.UserEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,28 +43,28 @@ class BookingFacadeImpl implements BookingFacade {
     }
 
     @Override
-    public List<Event> getEventsByTitle(String title, int pageSize, int pageNum) {
-        final List<Event> events = eventService.getEventsByTitle(title, pageSize, pageNum);
+    public List<EventEntity> getEventsByTitle(String title, int pageSize, int pageNum) {
+        final List<EventEntity> events = eventService.getEventsByTitle(title, pageSize, pageNum);
         logger.debug("getEventsByTitle invoked with title={}, pageSize={}, pageNum={} and returned {}", title, pageSize, pageNum, events);
         return events;
     }
 
     @Override
-    public List<Event> getEventsForDay(Date day, int pageSize, int pageNum) {
-        final List<Event> events = eventService.getEventsForDay(day, pageSize, pageNum);
+    public List<EventEntity> getEventsForDay(Date day, int pageSize, int pageNum) {
+        final List<EventEntity> events = eventService.getEventsForDay(day, pageSize, pageNum);
         logger.debug("getEventsByTitle invoked with day={}, pageSize={}, pageNum={} and returned {}", day, pageSize, pageNum, events);
         return events;
     }
 
     @Override
-    public Event createEvent(Event event) {
+    public Event createEvent(EventEntity event) {
         final Event mEvent = eventService.createEvent(event);
         logger.debug("createEvent was invoked with {} and returning {}", event, mEvent);
         return mEvent;
     }
 
     @Override
-    public Event updateEvent(Event event) {
+    public Event updateEvent(EventEntity event) {
         final Event mEvent = eventService.updateEvent(event);
         logger.debug("updateEvent was invoked with {} and returning {}", event, mEvent);
         return mEvent;
@@ -89,21 +92,21 @@ class BookingFacadeImpl implements BookingFacade {
     }
 
     @Override
-    public List<User> getUsersByName(String name, int pageSize, int pageNum) {
-        final List<User> users = userService.getUsersByName(name, pageSize, pageNum);
+    public List<UserEntity> getUsersByName(String name, int pageSize, int pageNum) {
+        final List<UserEntity> users = userService.getUsersByName(name, pageSize, pageNum);
         logger.debug("getUsersByName was invoked with name={}, pageSize={}, pageNum={} and returning {}", name, pageSize, pageNum, users);
         return users;
     }
 
     @Override
-    public User createUser(User user) {
+    public User createUser(UserEntity user) {
         final User mUser = userService.createUser(user);
         logger.debug("createUser was invoked with {} and returning {}", user, mUser);
         return mUser;
     }
 
     @Override
-    public User updateUser(User user) {
+    public User updateUser(UserEntity user) {
         final User mUser = userService.updateUser(user);
         logger.debug("updateUser was invoked with {} and returning {}", user, mUser);
         return mUser;
@@ -130,15 +133,15 @@ class BookingFacadeImpl implements BookingFacade {
     }
 
     @Override
-    public List<Ticket> getBookedTickets(User user, int pageSize, int pageNum) {
-        final List<Ticket> tickets = ticketService.getBookedTickets(user, pageSize, pageNum);
+    public List<TicketEntity> getBookedTickets(User user, int pageSize, int pageNum) {
+        final List<TicketEntity> tickets = ticketService.getBookedTickets(user, pageSize, pageNum);
         logger.debug("getBookedTickets was invoked with user={}, pageSize={}, pageNum={} and returning {}", user, pageSize, pageNum, tickets);
         return tickets;
     }
 
     @Override
-    public List<Ticket> getBookedTickets(Event event, int pageSize, int pageNum) {
-        final List<Ticket> tickets = ticketService.getBookedTickets(event, pageSize, pageNum);
+    public List<TicketEntity> getBookedTickets(Event event, int pageSize, int pageNum) {
+        final List<TicketEntity> tickets = ticketService.getBookedTickets(event, pageSize, pageNum);
         logger.debug("getBookedTickets was invoked with event={}, pageSize={}, pageNum={} and returning {}", event, pageSize, pageNum, tickets);
         return tickets;
     }

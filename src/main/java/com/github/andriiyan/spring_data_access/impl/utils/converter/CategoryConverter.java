@@ -1,7 +1,7 @@
 package com.github.andriiyan.spring_data_access.impl.utils.converter;
 
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
-import jakarta.persistence.AttributeConverter;
+import javax.persistence.AttributeConverter;
 
 public class CategoryConverter implements AttributeConverter<Ticket.Category, String> {
     @Override

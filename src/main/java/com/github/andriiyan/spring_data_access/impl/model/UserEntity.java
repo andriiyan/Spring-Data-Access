@@ -1,7 +1,7 @@
 package com.github.andriiyan.spring_data_access.impl.model;
 
 import com.github.andriiyan.spring_data_access.api.model.User;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import org.springframework.lang.NonNull;
 
 @Entity

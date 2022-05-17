@@ -10,7 +10,9 @@ import com.github.andriiyan.spring_data_access.api.service.TicketService;
 import com.github.andriiyan.spring_data_access.api.service.UserAccountService;
 import com.github.andriiyan.spring_data_access.api.service.UserService;
 import com.github.andriiyan.spring_data_access.impl.model.EventEntity;
+import com.github.andriiyan.spring_data_access.impl.model.TicketEntity;
 import com.github.andriiyan.spring_data_access.impl.model.UserAccountEntity;
+import com.github.andriiyan.spring_data_access.impl.model.UserEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,7 +47,7 @@ public class BookingFacadeImplTest {
 
     @Test
     public void getEventById_should_be_delegated() {
-        Event returningEvent = Mockito.mock(Event.class);
+        EventEntity returningEvent = Mockito.mock(EventEntity.class);
         long eventId = random.nextLong();
 
         Mockito.when(eventService.getEventById(eventId)).thenReturn(returningEvent);
@@ -59,15 +61,15 @@ public class BookingFacadeImplTest {
 
     @Test
     public void getEventsByTitle_should_be_delegated() {
-        Event event = Mockito.mock(Event.class);
+        EventEntity event = Mockito.mock(EventEntity.class);
         String title = String.valueOf(random.nextInt());
         int pageSize = random.nextInt();
         int pageNum = random.nextInt();
-        List<Event> returningEvents = List.of(event);
+        List<EventEntity> returningEvents = List.of(event);
 
         Mockito.when(eventService.getEventsByTitle(title, pageSize, pageNum)).thenReturn(returningEvents);
 
-        List<Event> facadeEvents = bookingFacade.getEventsByTitle(title, pageSize, pageNum);
+        List<EventEntity> facadeEvents = bookingFacade.getEventsByTitle(title, pageSize, pageNum);
         Assert.assertEquals(returningEvents, facadeEvents);
 
         Mockito.verify(eventService).getEventsByTitle(title, pageSize, pageNum);
@@ -76,15 +78,15 @@ public class BookingFacadeImplTest {
 
     @Test
     public void getEventsForDay_should_be_delegated() {
-        Event event = Mockito.mock(Event.class);
+        EventEntity event = Mockito.mock(EventEntity.class);
         Date date = new Date(random.nextLong());
         int pageSize = random.nextInt();
         int pageNum = random.nextInt();
-        List<Event> returningEvents = List.of(event);
+        List<EventEntity> returningEvents = List.of(event);
 
         Mockito.when(eventService.getEventsForDay(date, pageSize, pageNum)).thenReturn(returningEvents);
 
-        List<Event> facadeEvents = bookingFacade.getEventsForDay(date, pageSize, pageNum);
+        List<EventEntity> facadeEvents = bookingFacade.getEventsForDay(date, pageSize, pageNum);
         Assert.assertEquals(returningEvents, facadeEvents);
 
         Mockito.verify(eventService).getEventsForDay(date, pageSize, pageNum);
@@ -92,8 +94,8 @@ public class BookingFacadeImplTest {
 
     @Test
     public void createEvent_should_be_delegated() {
-        Event returningEvent = Mockito.mock(Event.class);
-        Event creatingEvent = Mockito.mock(Event.class);
+        EventEntity returningEvent = Mockito.mock(EventEntity.class);
+        EventEntity creatingEvent = Mockito.mock(EventEntity.class);
         Mockito.when(eventService.createEvent(creatingEvent)).thenReturn(returningEvent);
 
         Event facadeEvent = bookingFacade.createEvent(creatingEvent);
@@ -104,8 +106,8 @@ public class BookingFacadeImplTest {
 
     @Test
     public void updateEvent_should_be_delegated()  {
-        Event returningEvent = Mockito.mock(Event.class);
-        Event updatingEvent = Mockito.mock(Event.class);
+        EventEntity returningEvent = Mockito.mock(EventEntity.class);
+        EventEntity updatingEvent = Mockito.mock(EventEntity.class);
         Mockito.when(eventService.updateEvent(updatingEvent)).thenReturn(returningEvent);
 
         Event facadeEvent = bookingFacade.updateEvent(updatingEvent);
@@ -151,13 +153,13 @@ public class BookingFacadeImplTest {
 
     @Test
     public void getUsersByName_should_be_delegated() {
-        List<User> returningUsers = List.of(Mockito.mock(User.class));
+        List<UserEntity> returningUsers = List.of(Mockito.mock(UserEntity.class));
         String userName = String.valueOf(random.nextLong());
         int pageSize = random.nextInt();
         int pageNum = random.nextInt();
         Mockito.when(userService.getUsersByName(userName, pageSize, pageNum)).thenReturn(returningUsers);
 
-        List<User> facadeUsers = bookingFacade.getUsersByName(userName, pageSize, pageNum);
+        List<UserEntity> facadeUsers = bookingFacade.getUsersByName(userName, pageSize, pageNum);
         Assert.assertEquals(returningUsers, facadeUsers);
 
         Mockito.verify(userService).getUsersByName(userName, pageSize, pageNum);
@@ -167,7 +169,7 @@ public class BookingFacadeImplTest {
     @Test
     public void createUser_should_be_delegated() {
         User returningUser = Mockito.mock(User.class);
-        User creatingUser = Mockito.mock(User.class);
+        UserEntity creatingUser = Mockito.mock(UserEntity.class);
         Mockito.when(userService.createUser(creatingUser)).thenReturn(returningUser);
 
         User facadeUser = bookingFacade.createUser(creatingUser);
@@ -179,7 +181,7 @@ public class BookingFacadeImplTest {
     @Test
     public void updateUser_should_be_delegated() {
         User returningUser = Mockito.mock(User.class);
-        User updatingUser = Mockito.mock(User.class);
+        UserEntity updatingUser = Mockito.mock(UserEntity.class);
         Mockito.when(userService.updateUser(updatingUser)).thenReturn(returningUser);
 
         User facadeUser = bookingFacade.updateUser(updatingUser);
@@ -205,7 +207,7 @@ public class BookingFacadeImplTest {
         long eventId = random.nextLong();
         int place = random.nextInt();
         Ticket returningTicket = Mockito.mock(Ticket.class);
-        Event event = new EventEntity(eventId, "a", new Date(), 10);
+        EventEntity event = new EventEntity(eventId, "a", new Date(), 10);
         UserAccount userAccount = new UserAccountEntity(userId, 100);
 
         Mockito.when(eventService.getEventById(eventId)).thenReturn(event);
@@ -224,12 +226,11 @@ public class BookingFacadeImplTest {
         long eventId = random.nextLong();
         int place = random.nextInt();
         Ticket returningTicket = Mockito.mock(Ticket.class);
-        Event event = new EventEntity(eventId, "a", new Date(), 1000);
+        EventEntity event = new EventEntity(eventId, "a", new Date(), 1000);
         UserAccount userAccount = new UserAccountEntity(userId, event.getTicketPrice() - 10);
 
         Mockito.when(eventService.getEventById(eventId)).thenReturn(event);
         Mockito.when(userAccountService.getUserAmount(userId)).thenReturn(userAccount);
-        Mockito.when(ticketService.bookTicket(userId, eventId, place, Ticket.Category.BAR)).thenReturn(returningTicket);
 
         Ticket facadeTicket = bookingFacade.bookTicket(userId, eventId, place, Ticket.Category.BAR);
         Assert.assertEquals(returningTicket, facadeTicket);
@@ -242,11 +243,11 @@ public class BookingFacadeImplTest {
         User user = Mockito.mock(User.class);
         int pageSize = random.nextInt();
         int pageNum = random.nextInt();
-        List<Ticket> returningTickets = List.of(Mockito.mock(Ticket.class));
+        List<TicketEntity> returningTickets = List.of(Mockito.mock(TicketEntity.class));
 
         Mockito.when(ticketService.getBookedTickets(user, pageSize, pageNum)).thenReturn(returningTickets);
 
-        List<Ticket> facadeTickets = bookingFacade.getBookedTickets(user, pageSize, pageNum);
+        List<TicketEntity> facadeTickets = bookingFacade.getBookedTickets(user, pageSize, pageNum);
         Assert.assertEquals(returningTickets, facadeTickets);
 
         Mockito.verify(ticketService).getBookedTickets(user, pageSize, pageNum);
@@ -254,14 +255,14 @@ public class BookingFacadeImplTest {
 
     @Test
     public void getBookedTicketsEvent_should_be_delegated() {
-        Event event = Mockito.mock(Event.class);
+        EventEntity event = Mockito.mock(EventEntity.class);
         int pageSize = random.nextInt();
         int pageNum = random.nextInt();
-        List<Ticket> returningTickets = List.of(Mockito.mock(Ticket.class));
+        List<TicketEntity> returningTickets = List.of(Mockito.mock(TicketEntity.class));
 
         Mockito.when(ticketService.getBookedTickets(event, pageSize, pageNum)).thenReturn(returningTickets);
 
-        List<Ticket> facadeTickets = bookingFacade.getBookedTickets(event, pageSize, pageNum);
+        List<TicketEntity> facadeTickets = bookingFacade.getBookedTickets(event, pageSize, pageNum);
         Assert.assertEquals(returningTickets, facadeTickets);
 
         Mockito.verify(ticketService).getBookedTickets(event, pageSize, pageNum);

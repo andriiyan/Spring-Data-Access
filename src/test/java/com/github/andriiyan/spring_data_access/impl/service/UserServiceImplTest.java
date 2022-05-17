@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +28,7 @@ public class UserServiceImplTest {
     @Test
     public void getUserById() {
         final long userId = 123;
-        final Optional<User> returningUser = Optional.of(new UserEntity("name", "email"));
+        final Optional<UserEntity> returningUser = Optional.of(new UserEntity("name", "email"));
         Mockito.when(userDao.findById(userId)).thenReturn(returningUser);
 
         final User returnedUser = userService.getUserById(userId);
@@ -39,14 +40,14 @@ public class UserServiceImplTest {
     @Test
     public void getUserByEmail() {
         final String email = "email@test.com";
-        User returningUser = new UserEntity("name", "email");
+        UserEntity returningUser = new UserEntity("name", "email");
         returningUser.setEmail(email);
-        Mockito.when(userDao.getUserByEmail(email)).thenReturn(returningUser);
+        Mockito.when(userDao.findByEmail(email)).thenReturn(Optional.of(returningUser));
 
         final User returnedUser1 = userService.getUserByEmail(email);
 
         Assert.assertEquals(returningUser, returnedUser1);
-        Mockito.verify(userDao).getUserByEmail(email);
+        Mockito.verify(userDao).findByEmail(email);
     }
 
     @Test
@@ -55,31 +56,31 @@ public class UserServiceImplTest {
         int pageSize = 3;
         int pageNum = 2;
 
-        List<User> returningUsers = new ArrayList<>();
+        List<UserEntity> returningUsers = new ArrayList<>();
         for (int i = 0; i < (pageNum + 1) * pageSize; i++) {
             returningUsers.add(new UserEntity("name " + i, "email " + i));
         }
 
-        Mockito.when(userDao.getUsersByName(searchingName, pageSize, pageNum)).thenReturn(returningUsers);
+        Mockito.when(userDao.findAllByName(searchingName, PageRequest.of(pageNum, pageSize))).thenReturn(returningUsers);
 
-        List<User> returnedUsers = userService.getUsersByName(searchingName, pageSize, pageNum);
+        List<UserEntity> returnedUsers = userService.getUsersByName(searchingName, pageSize, pageNum);
 
         Assert.assertEquals(returningUsers, returnedUsers);
-        Mockito.verify(userDao).getUsersByName(searchingName, pageSize, pageNum);
+        Mockito.verify(userDao).findAllByName(searchingName, PageRequest.of(pageNum, pageSize));
 
         // case when there are no users that contains that name
         returningUsers = Collections.emptyList();
-        Mockito.when(userDao.getUsersByName(searchingName, pageSize, pageNum)).thenReturn(returningUsers);
+        Mockito.when(userDao.findAllByName(searchingName, PageRequest.of(pageNum, pageSize))).thenReturn(returningUsers);
 
         returnedUsers = userService.getUsersByName(searchingName, pageSize, pageNum);
         Assert.assertEquals(returningUsers, returnedUsers);
-        Mockito.verify(userDao, Mockito.times(2)).getUsersByName(searchingName, pageSize, pageNum);
+        Mockito.verify(userDao, Mockito.times(2)).findAllByName(searchingName, PageRequest.of(pageNum, pageSize));
     }
 
     @Test
     public void createUser() {
-        final User user = new UserEntity("name", "email");
-        final User returningUser = new UserEntity("name1", "email1");
+        final UserEntity user = new UserEntity("name", "email");
+        final UserEntity returningUser = new UserEntity("name1", "email1");
         Mockito.when(userDao.save(user)).thenReturn(returningUser);
 
         final User returnedUser = userService.createUser(user);
@@ -90,8 +91,8 @@ public class UserServiceImplTest {
 
     @Test
     public void updateUser() {
-        final User user = new UserEntity("name", "email");
-        final User returningUser = new UserEntity("name1", "email1");
+        final UserEntity user = new UserEntity("name", "email");
+        final UserEntity returningUser = new UserEntity("name1", "email1");
         Mockito.when(userDao.save(user)).thenReturn(returningUser);
 
         final User returnedUser = userService.updateUser(user);

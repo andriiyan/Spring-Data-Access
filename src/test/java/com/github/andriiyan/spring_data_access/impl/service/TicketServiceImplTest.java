@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,15 +50,15 @@ public class TicketServiceImplTest {
         final int pageNum = 2;
 
         final User user = new UserEntity("name", "email");
-        final List<Ticket> allTickets = new ArrayList<>();
+        final List<TicketEntity> allTickets = new ArrayList<>();
         for (int i = 0; i < pageSize * (pageNum + 1); i++) {
             allTickets.add(new TicketEntity(i, i, Ticket.Category.BAR, i));
-        }        Mockito.when(ticketDao.getBookedTickets(user, pageSize, pageNum)).thenReturn(allTickets);
+        }        Mockito.when(ticketDao.findAllByUserId(user.getId(), PageRequest.of(pageNum, pageSize))).thenReturn(allTickets);
 
-        final List<Ticket> returnedTickets = ticketService.getBookedTickets(user, pageSize, pageNum);
+        final List<TicketEntity> returnedTickets = ticketService.getBookedTickets(user, pageSize, pageNum);
 
         Assert.assertEquals(allTickets, returnedTickets);
-        Mockito.verify(ticketDao).getBookedTickets(user, pageSize, pageNum);
+        Mockito.verify(ticketDao).findAllByUserId(user.getId(), PageRequest.of(pageNum, pageSize));
     }
 
     @Test
@@ -66,16 +67,16 @@ public class TicketServiceImplTest {
         final int pageNum = 2;
 
         final Event event = new EventEntity("test", new Date(), 20);
-        final List<Ticket> allTickets = new ArrayList<>();
+        final List<TicketEntity> allTickets = new ArrayList<>();
         for (int i = 0; i < pageSize * (pageNum + 1); i++) {
             allTickets.add(new TicketEntity(i, i, Ticket.Category.BAR, i));
         }
-        Mockito.when(ticketDao.getBookedTickets(event, pageSize, pageNum)).thenReturn(allTickets);
+        Mockito.when(ticketDao.findAllByEventId(event.getId(), PageRequest.of(pageNum, pageSize))).thenReturn(allTickets);
 
-        final List<Ticket> returnedTickets = ticketService.getBookedTickets(event, pageSize, pageNum);
+        final List<TicketEntity> returnedTickets = ticketService.getBookedTickets(event, pageSize, pageNum);
 
         Assert.assertEquals(allTickets, returnedTickets);
-        Mockito.verify(ticketDao).getBookedTickets(event, pageSize, pageNum);
+        Mockito.verify(ticketDao).findAllByEventId(event.getId(), PageRequest.of(pageNum, pageSize));
     }
 
 

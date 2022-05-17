@@ -1,7 +1,7 @@
 package com.github.andriiyan.spring_data_access.impl.model;
 
 import com.github.andriiyan.spring_data_access.api.model.UserAccount;
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "user_account")
@@ -54,6 +54,10 @@ public class UserAccountEntity implements UserAccount {
     @Override
     public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    public void add(double amount) {
+        this.amount += amount;
     }
 
     @Override

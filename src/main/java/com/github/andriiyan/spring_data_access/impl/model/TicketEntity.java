@@ -2,7 +2,7 @@ package com.github.andriiyan.spring_data_access.impl.model;
 
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
 import com.github.andriiyan.spring_data_access.impl.utils.converter.CategoryConverter;
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 @Entity
 @Table(

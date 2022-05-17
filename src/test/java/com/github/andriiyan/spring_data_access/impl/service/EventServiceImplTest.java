@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,7 +29,7 @@ public class EventServiceImplTest {
     @Test
     public void getEventById_shouldReturnSameModelAsDao() {
         final long eventId = 100;
-        final Optional<Event> returningEvent = Optional.of(new EventEntity());
+        final Optional<EventEntity> returningEvent = Optional.of(new EventEntity());
         Mockito.when(eventDao.findById(eventId)).thenReturn(returningEvent);
 
         final Event returnedEvent = eventService.getEventById(eventId);
@@ -43,17 +44,17 @@ public class EventServiceImplTest {
         final int pageNum = 1;
 
         // generating events for the 5 pages
-        final List<Event> returningEvents = new ArrayList<>();
+        final List<EventEntity> returningEvents = new ArrayList<>();
         for (int i = 0; i < 5 * pageSize; i++) {
             returningEvents.add(new EventEntity("name " + i, new Date(), i));
         }
 
-        Mockito.when(eventDao.getEventsByTitle(title, pageSize, pageNum)).thenReturn(returningEvents);
-        final List<Event> returnedEvents = eventService.getEventsByTitle(title, pageSize, pageNum);
+        Mockito.when(eventDao.findAllByTitle(title, PageRequest.of(pageNum, pageSize))).thenReturn(returningEvents);
+        final List<EventEntity> returnedEvents = eventService.getEventsByTitle(title, pageSize, pageNum);
 
         Assert.assertEquals(returningEvents, returnedEvents);
 
-        Mockito.verify(eventDao).getEventsByTitle(title, pageSize, pageNum);
+        Mockito.verify(eventDao).findAllByTitle(title, PageRequest.of(pageNum, pageSize));
     }
 
     @Test
@@ -63,23 +64,23 @@ public class EventServiceImplTest {
         final int pageNum = 1;
 
         // generating events for the 5 pages
-        final List<Event> returningEvents = new ArrayList<>();
+        final List<EventEntity> returningEvents = new ArrayList<>();
         for (int i = 0; i < 5 * pageSize; i++) {
             returningEvents.add(new EventEntity("name " + i, new Date(), i));
         }
 
-        Mockito.when(eventDao.getEventsForDay(date, pageSize, pageNum)).thenReturn(returningEvents);
-        final List<Event> returnedEvents = eventService.getEventsForDay(date, pageSize, pageNum);
+        Mockito.when(eventDao.findAllByDate(date, PageRequest.of(pageNum, pageSize))).thenReturn(returningEvents);
+        final List<EventEntity> returnedEvents = eventService.getEventsForDay(date, pageSize, pageNum);
 
         Assert.assertEquals(returningEvents, returnedEvents);
 
-        Mockito.verify(eventDao).getEventsForDay(date, pageSize, pageNum);
+        Mockito.verify(eventDao).findAllByDate(date, PageRequest.of(pageNum, pageSize));
     }
 
     @Test
     public void createEvent_shouldReturnSameModelAsDao() {
-        final Event savingEvent = new EventEntity("name", new Date(), 100);
-        final Event returningEvent = new EventEntity("test", new Date(), 50);
+        final EventEntity savingEvent = new EventEntity("name", new Date(), 100);
+        final EventEntity returningEvent = new EventEntity("test", new Date(), 50);
         Mockito.when(eventDao.save(savingEvent)).thenReturn(returningEvent);
 
         final Event returnedEvent = eventService.createEvent(savingEvent);
@@ -89,8 +90,8 @@ public class EventServiceImplTest {
 
     @Test
     public void updateEvent_shouldReturnSameModelAsDao() {
-        final Event savingEvent = new EventEntity("name", new Date(), 100);
-        final Event returningEvent = new EventEntity("test", new Date(), 50);
+        final EventEntity savingEvent = new EventEntity("name", new Date(), 100);
+        final EventEntity returningEvent = new EventEntity("test", new Date(), 50);
         Mockito.when(eventDao.save(savingEvent)).thenReturn(returningEvent);
 
         final Event returnedEvent = eventService.updateEvent(savingEvent);

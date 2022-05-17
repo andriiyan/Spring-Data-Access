@@ -1,16 +1,15 @@
 package com.github.andriiyan.spring_data_access.api.dao;
 
-import com.github.andriiyan.spring_data_access.api.model.Event;
-import com.github.andriiyan.spring_data_access.api.model.Ticket;
-import com.github.andriiyan.spring_data_access.api.model.User;
-import org.springframework.data.repository.CrudRepository;
+import com.github.andriiyan.spring_data_access.impl.model.TicketEntity;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
 
-public interface TicketDao extends CrudRepository<Ticket, Long> {
+public interface TicketDao extends PagingAndSortingRepository<TicketEntity, Long> {
 
-    List<Ticket> getBookedTickets(User user, int pageSize, int pageNum);
+    List<TicketEntity> findAllByUserId(long userId, Pageable pageable);
 
-    List<Ticket> getBookedTickets(Event event, int pageSize, int pageNum);
+    List<TicketEntity> findAllByEventId(long eventId, Pageable pageable);
 
 }

@@ -1,9 +1,9 @@
 package com.github.andriiyan.spring_data_access.impl.model;
 
 import com.github.andriiyan.spring_data_access.api.model.Event;
-import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
+import javax.persistence.*;
 import java.sql.Time;
 import java.util.Date;
 
@@ -25,11 +25,11 @@ public class EventEntity implements Event {
 
     @Column(name = "date", nullable = false)
     @Temporal(value = TemporalType.DATE)
-    private java.sql.Date date;
+    private Date date;
 
     @Column(name = "time", nullable = false)
     @Temporal(value = TemporalType.TIME)
-    private java.sql.Time time;
+    private Date time;
 
     @Column(name = "ticket_price", nullable = false)
     private double ticketPrice;
@@ -75,8 +75,8 @@ public class EventEntity implements Event {
 
     @Override
     public void setDate(Date date) {
-        this.date = new java.sql.Date(date.getTime());
-        this.time = new Time(date.getTime());
+        this.date = date;
+        this.time = date;
     }
 
     @Override

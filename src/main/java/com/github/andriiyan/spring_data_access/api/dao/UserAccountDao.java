@@ -1,19 +1,11 @@
 package com.github.andriiyan.spring_data_access.api.dao;
 
-import com.github.andriiyan.spring_data_access.api.model.UserAccount;
+import com.github.andriiyan.spring_data_access.impl.model.UserAccountEntity;
+import org.springframework.data.repository.CrudRepository;
 
-public interface UserAccountDao {
-    /**
-     * Refills user's account.
-     * @param amount amount that wil be added to the user's account.
-     * @param userId id of the user.
-     * @return new user's account amount.
-     */
-    UserAccount refillUser(double amount, long userId);
+import java.util.Optional;
 
-    /**
-     * @param userId id of the user.
-     * @return user's amount.
-     */
-    UserAccount getUserAmount(long userId);
+public interface UserAccountDao extends CrudRepository<UserAccountEntity, Long> {
+
+    Optional<UserAccountEntity> findByUserId(long userId);
 }

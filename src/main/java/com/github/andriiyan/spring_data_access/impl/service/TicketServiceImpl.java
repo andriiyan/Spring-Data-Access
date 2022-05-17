@@ -8,7 +8,7 @@ import com.github.andriiyan.spring_data_access.api.service.TicketService;
 import com.github.andriiyan.spring_data_access.impl.model.TicketEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -16,7 +16,6 @@ class TicketServiceImpl implements TicketService {
 
     private static final Logger logger = LoggerFactory.getLogger(TicketServiceImpl.class);
 
-    @Autowired
     private TicketDao ticketDao;
 
     @Override
@@ -27,15 +26,15 @@ class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public List<Ticket> getBookedTickets(User user, int pageSize, int pageNum) {
-        final List<Ticket> tickets = ticketDao.getBookedTickets(user, pageSize, pageNum);
+    public List<TicketEntity> getBookedTickets(User user, int pageSize, int pageNum) {
+        final List<TicketEntity> tickets = ticketDao.findAllByUserId(user.getId(), PageRequest.of(pageNum, pageSize));
         logger.debug("getBookedTickets was invoked user={}, pageSize={}, pageNum={} and returning {}", user, pageSize, pageNum, tickets);
         return tickets;
     }
 
     @Override
-    public List<Ticket> getBookedTickets(Event event, int pageSize, int pageNum) {
-        final List<Ticket> tickets = ticketDao.getBookedTickets(event, pageSize, pageNum);
+    public List<TicketEntity> getBookedTickets(Event event, int pageSize, int pageNum) {
+        final List<TicketEntity> tickets = ticketDao.findAllByEventId(event.getId(), PageRequest.of(pageNum, pageSize));
         logger.debug("getBookedTickets was invoked with event={}, pageSize={}, pageNum={} and returning {}", event, pageSize, pageNum, tickets);
         return tickets;
     }

@@ -9,7 +9,4 @@
        profile="local"
        default-lazy-init="true">
     <context:property-placeholder location="classpath:application-local.properties"/>
-    <bean id="hibernateConfiguration" class="com.github.andriiyan.spring_data_access.impl.storage.hibernate.HibernateConfiguration" lazy-init="false" destroy-method="close">
-        <constructor-arg name="configurationFileName" value="${hibernate.config.fileName}" />
-    </bean>
 </beans>

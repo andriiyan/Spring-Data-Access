@@ -1,6 +1,7 @@
 package com.github.andriiyan.spring_data_access.api.service;
 
 import com.github.andriiyan.spring_data_access.api.model.User;
+import com.github.andriiyan.spring_data_access.impl.model.UserEntity;
 
 import java.util.List;
 
@@ -26,21 +27,21 @@ public interface UserService {
      * @param pageNum Pagination param. Number of the page to return. Starts from 1.
      * @return List of users.
      */
-    List<User> getUsersByName(String name, int pageSize, int pageNum);
+    List<UserEntity> getUsersByName(String name, int pageSize, int pageNum);
 
     /**
      * Creates new user. User id should be auto-generated.
      * @param user User data.
      * @return Created User object.
      */
-    User createUser(User user);
+    User createUser(UserEntity user);
 
     /**
      * Updates user using given data.
      * @param user User data for update. Should have id set.
      * @return Updated User object.
      */
-    User updateUser(User user);
+    User updateUser(UserEntity user);
 
     /**
      * Deletes user by its id.

@@ -9,7 +9,6 @@ import com.github.andriiyan.spring_data_access.api.service.EventService;
 import com.github.andriiyan.spring_data_access.api.service.TicketService;
 import com.github.andriiyan.spring_data_access.api.service.UserAccountService;
 import com.github.andriiyan.spring_data_access.api.service.UserService;
-import com.github.andriiyan.spring_data_access.impl.storage.hibernate.HibernateConfiguration;
 import com.github.andriiyan.spring_data_access.impl.utils.ListUtils;
 import org.junit.Assert;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -45,7 +44,6 @@ public abstract class BaseContainerTest {
     protected UserService userService;
     protected UserAccountService userAccountService;
     protected BookingFacade bookingFacade;
-    protected HibernateConfiguration hibernateConfiguration;
 
     protected ConfigurableApplicationContext getConfiguredContext() {
         if (profiles != null) {
@@ -70,13 +68,12 @@ public abstract class BaseContainerTest {
         return context.getBeanFactory().resolveEmbeddedValue("${" + name + "}");
     }
 
-    protected void initialize() {
+    private void initialize() {
         context = getConfiguredContext();
         refreshBeans();
     }
 
-    protected void refreshBeans() {
-        hibernateConfiguration = context.getBean(HibernateConfiguration.class);
+    private void refreshBeans() {
         eventDao = context.getBean(EventDao.class);
         ticketDao = context.getBean(TicketDao.class);
         userDao = context.getBean(UserDao.class);
