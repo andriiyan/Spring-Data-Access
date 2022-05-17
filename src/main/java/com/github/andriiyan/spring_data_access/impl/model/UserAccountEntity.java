@@ -6,6 +6,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "user_account")
 public class UserAccountEntity implements UserAccount {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

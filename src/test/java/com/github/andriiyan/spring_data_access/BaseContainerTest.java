@@ -19,7 +19,7 @@ import org.springframework.lang.NonNull;
 
 import java.util.Arrays;
 
-public abstract class BaseContainerTest {
+public class BaseContainerTest {
 
     private String[] profiles;
 
@@ -49,10 +49,7 @@ public abstract class BaseContainerTest {
         if (profiles != null) {
             System.setProperty("spring.profiles.active", ListUtils.joinToString(Arrays.asList(profiles), ','));
         }
-        return new ClassPathXmlApplicationContext(
-                "application-local.xml",
-                "application.xml"
-        );
+        return new ClassPathXmlApplicationContext(Main.configurations);
     }
 
     protected <T> void verifyNotContainsInConfig(ApplicationContext context, Class<T> type) {
@@ -68,7 +65,11 @@ public abstract class BaseContainerTest {
         return context.getBeanFactory().resolveEmbeddedValue("${" + name + "}");
     }
 
-    private void initialize() {
+    protected boolean isContainsProperty(@NonNull String name) {
+        return getProperty(name) != null;
+    }
+
+    protected void initialize() {
         context = getConfiguredContext();
         refreshBeans();
     }
@@ -87,7 +88,6 @@ public abstract class BaseContainerTest {
 
     protected void setActiveProfiles(String ... profiles) {
         this.profiles = profiles;
-        System.setProperty("spring.profiles.active", ListUtils.joinToString(Arrays.asList(profiles), ','));
         initialize();
     }
 

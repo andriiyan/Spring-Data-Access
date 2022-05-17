@@ -1,6 +1,8 @@
 package com.github.andriiyan.spring_data_access.api.model;
 
-public interface UserAccount extends Identifierable {
+import java.io.Serializable;
+
+public interface UserAccount extends Identifierable, Serializable {
     double getAmount();
 
     void setAmount(double amount);

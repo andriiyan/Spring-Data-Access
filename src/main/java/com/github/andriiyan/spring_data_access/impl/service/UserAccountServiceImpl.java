@@ -34,7 +34,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     public UserAccount getUserAmount(long userId) {
         Optional<UserAccountEntity> result = userAccountDao.findByUserId(userId);
         logger.debug("getUserAmount was invoked with the userId: {}, result is {}", userId, result);
-        return result.get(); // todo custom exception ?
+        return result.get();
     }
 
     public void setUserAccountDao(UserAccountDao userAccountDao) {

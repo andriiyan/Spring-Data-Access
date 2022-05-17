@@ -8,5 +8,5 @@
         http://www.springframework.org/schema/context/spring-context.xsd"
        profile="local"
        default-lazy-init="true">
-    <context:property-placeholder location="classpath:application-local.properties"/>
+    <context:property-placeholder location="classpath:application-local.properties, classpath:application-dump.properties"/>
 </beans>

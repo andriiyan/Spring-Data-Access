@@ -14,7 +14,7 @@
         http://www.springframework.org/schema/tx/spring-tx-3.1.xsd"
        default-lazy-init="true">
 
-    <context:property-placeholder location="classpath:application.properties"/>
+    <context:property-placeholder location="classpath:application.properties, classpath:application-dump.properties"/>
 
     <context:component-scan base-package="com.github.andriiyan.spring_data_access.api.dao"/>
 
@@ -54,19 +54,37 @@
     <bean id="eventService" class="com.github.andriiyan.spring_data_access.impl.service.EventServiceImpl">
         <property name="eventDao" ref="eventDao"/>
     </bean>
+
     <bean id="ticketService" class="com.github.andriiyan.spring_data_access.impl.service.TicketServiceImpl">
         <property name="ticketDao" ref="ticketDao" />
     </bean>
+
     <bean id="userService" class="com.github.andriiyan.spring_data_access.impl.service.UserServiceImpl">
         <property name="userDao" ref="userDao" />
     </bean>
+
     <bean id="userAccountService" class="com.github.andriiyan.spring_data_access.impl.service.UserAccountServiceImpl">
         <property name="userAccountDao" ref="userAccountDao"/>
     </bean>
+
     <bean id="bookingFacade" class="com.github.andriiyan.spring_data_access.impl.facade.BookingFacadeImpl">
         <constructor-arg ref="eventService"/>
         <constructor-arg ref="ticketService"/>
         <constructor-arg ref="userService"/>
         <constructor-arg ref="userAccountService"/>
+    </bean>
+
+    <bean id="dumpUtils" class="com.github.andriiyan.spring_data_access.impl.utils.DumpUtils" init-method="init" lazy-init="false">
+        <constructor-arg name="eventFilePath" value="${initial-date-population.event_file_path}"/>
+        <constructor-arg name="userFilePath" value="${initial-date-population.user_file_path}"/>
+        <constructor-arg name="userAccountFilePath" value="${initial-date-population.user_account_file_path}"/>
+        <constructor-arg name="ticketFilePath" value="${initial-date-population.ticket_file_path}"/>
+        <constructor-arg name="read" value="${initial-date-population.read}"/>
+        <constructor-arg name="enabled" value="${initial-date-population.enabled}"/>
+        <constructor-arg name="serializer">
+            <bean class="com.github.andriiyan.spring_data_access.impl.utils.file.serializer.JsonSerializer"/>
+        </constructor-arg>
+        <property name="itemCount" value="${initial-date-population.item_count}"/>
+        <property name="bookingFacade" ref="bookingFacade"/>
     </bean>
 </beans>
