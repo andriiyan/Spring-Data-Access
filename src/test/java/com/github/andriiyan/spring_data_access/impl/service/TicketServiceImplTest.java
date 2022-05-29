@@ -4,7 +4,9 @@ import com.github.andriiyan.spring_data_access.api.dao.TicketDao;
 import com.github.andriiyan.spring_data_access.api.model.Event;
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
 import com.github.andriiyan.spring_data_access.api.model.User;
-import com.github.andriiyan.spring_data_access.impl.TestModelsFactory;
+import com.github.andriiyan.spring_data_access.impl.model.EventEntity;
+import com.github.andriiyan.spring_data_access.impl.model.TicketEntity;
+import com.github.andriiyan.spring_data_access.impl.model.UserEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.PageRequest;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -26,7 +31,7 @@ public class TicketServiceImplTest {
 
     @Test
     public void bookTicket_shouldInvokeDao() {
-        final Ticket returningTicket = TestModelsFactory.generateSingleTicket();
+        final Ticket returningTicket = new TicketEntity(1, 1, Ticket.Category.BAR, 2);
         final long userId = 1;
         final long eventId = 1;
         final int place = 12;
@@ -44,14 +49,16 @@ public class TicketServiceImplTest {
         final int pageSize = 5;
         final int pageNum = 2;
 
-        final User user = TestModelsFactory.generateSingleUser();
-        final List<Ticket> allTickets = TestModelsFactory.generateTickets(pageSize * (pageNum + 1));
-        Mockito.when(ticketDao.getBookedTickets(user, pageSize, pageNum)).thenReturn(allTickets);
+        final User user = new UserEntity("name", "email");
+        final List<TicketEntity> allTickets = new ArrayList<>();
+        for (int i = 0; i < pageSize * (pageNum + 1); i++) {
+            allTickets.add(new TicketEntity(i, i, Ticket.Category.BAR, i));
+        }        Mockito.when(ticketDao.findAllByUserId(user.getId(), PageRequest.of(pageNum, pageSize))).thenReturn(allTickets);
 
-        final List<Ticket> returnedTickets = ticketService.getBookedTickets(user, pageSize, pageNum);
+        final List<TicketEntity> returnedTickets = ticketService.getBookedTickets(user, pageSize, pageNum);
 
         Assert.assertEquals(allTickets, returnedTickets);
-        Mockito.verify(ticketDao).getBookedTickets(user, pageSize, pageNum);
+        Mockito.verify(ticketDao).findAllByUserId(user.getId(), PageRequest.of(pageNum, pageSize));
     }
 
     @Test
@@ -59,24 +66,27 @@ public class TicketServiceImplTest {
         final int pageSize = 5;
         final int pageNum = 2;
 
-        final Event event = TestModelsFactory.generateSingleEvent();
-        final List<Ticket> allTickets = TestModelsFactory.generateTickets(pageSize * (pageNum + 1));
-        Mockito.when(ticketDao.getBookedTickets(event, pageSize, pageNum)).thenReturn(allTickets);
+        final Event event = new EventEntity("test", new Date(), 20);
+        final List<TicketEntity> allTickets = new ArrayList<>();
+        for (int i = 0; i < pageSize * (pageNum + 1); i++) {
+            allTickets.add(new TicketEntity(i, i, Ticket.Category.BAR, i));
+        }
+        Mockito.when(ticketDao.findAllByEventId(event.getId(), PageRequest.of(pageNum, pageSize))).thenReturn(allTickets);
 
-        final List<Ticket> returnedTickets = ticketService.getBookedTickets(event, pageSize, pageNum);
+        final List<TicketEntity> returnedTickets = ticketService.getBookedTickets(event, pageSize, pageNum);
 
         Assert.assertEquals(allTickets, returnedTickets);
-        Mockito.verify(ticketDao).getBookedTickets(event, pageSize, pageNum);
+        Mockito.verify(ticketDao).findAllByEventId(event.getId(), PageRequest.of(pageNum, pageSize));
     }
 
 
     @Test
     public void cancelTicket_shouldReturnSameModelAsDao() {
         final long ticketId = 100;
-        Mockito.when(ticketDao.delete(ticketId)).thenReturn(true);
+        Mockito.doNothing().when(ticketDao).deleteById(ticketId);
 
         Assert.assertTrue(ticketService.cancelTicket(ticketId));
-        Mockito.verify(ticketDao).delete(ticketId);
+        Mockito.verify(ticketDao).deleteById(ticketId);
     }
 
 }

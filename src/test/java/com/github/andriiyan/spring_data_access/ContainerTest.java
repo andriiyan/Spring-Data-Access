@@ -1,110 +1,51 @@
 package com.github.andriiyan.spring_data_access;
 
-import com.github.andriiyan.spring_data_access.impl.utils.JsonInstanceCreator;
-import com.github.andriiyan.spring_data_access.impl.utils.file.FileUtils;
-import com.github.andriiyan.spring_data_access.impl.utils.file.Serializer;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ContainerTest extends BaseContainerTest {
+public class ContainerTest {
 
     @Test
     public void defaultConfig() {
-        Assert.assertNotNull(eventService);
-        Assert.assertNotNull(ticketService);
-        Assert.assertNotNull(userService);
-        Assert.assertNotNull(bookingFacade);
-        Assert.assertNotNull(eventDao);
-        Assert.assertNotNull(ticketDao);
-        Assert.assertNotNull(userDao);
-        Assert.assertNotNull(eventDao);
-        verifyNotContainsInConfig(context, JsonInstanceCreator.class);
-        verifyNotContainsInConfig(context, FileUtils.class);
-        verifyNotContainsInConfig(context, Serializer.class);
+        BaseContainerTest containerTest = new BaseContainerTest();
+        Assert.assertEquals("org.hibernate.dialect.PostgreSQLDialect", containerTest.getProperty("hibernate.dialect"));
+        Assert.assertEquals("true", containerTest.getProperty("hibernate.show-sql"));
+        Assert.assertEquals("update", containerTest.getProperty("hibernate.hbm2ddl.auto"));
+        Assert.assertNotNull(containerTest.eventService);
+        Assert.assertNotNull(containerTest.ticketService);
+        Assert.assertNotNull(containerTest.userService);
+        Assert.assertNotNull(containerTest.bookingFacade);
+        Assert.assertNotNull(containerTest.eventDao);
+        Assert.assertNotNull(containerTest.ticketDao);
+        Assert.assertNotNull(containerTest.userDao);
+        Assert.assertNotNull(containerTest.eventDao);
     }
 
     @Test
-    public void jsonConfig() {
-        setActiveProfiles("json");
-        Assert.assertNotNull(getProperty("dao.event.initializationFilePath"));
-        Assert.assertNotNull(getProperty("dao.ticket.initializationFilePath"));
-        Assert.assertNotNull(getProperty("dao.user.initializationFilePath"));
-        Assert.assertNotNull(getProperty("dump.itemCount"));
-        Assert.assertNotNull(getProperty("dump.rootFolder"));
-        Assert.assertNotNull(eventService);
-        Assert.assertNotNull(ticketService);
-        Assert.assertNotNull(userService);
-        Assert.assertNotNull(bookingFacade);
-        Assert.assertNotNull(eventDao);
-        Assert.assertNotNull(ticketDao);
-        Assert.assertNotNull(userDao);
-        Assert.assertNotNull(eventDao);
-        Assert.assertNotNull(context.getBeansOfType(JsonInstanceCreator.class));
-        Assert.assertNotNull(context.getBean(FileUtils.class));
-        Assert.assertNotNull(context.getBean(Serializer.class));
-    }
-
-    @Test
-    public void jsonDumpConfig() {
-        setActiveProfiles("json", "dump");
-        Assert.assertNotNull(getProperty("dao.event.initializationFilePath"));
-        Assert.assertNotNull(getProperty("dao.ticket.initializationFilePath"));
-        Assert.assertNotNull(getProperty("dao.user.initializationFilePath"));
-        Assert.assertNotNull(getProperty("dump.itemCount"));
-        Assert.assertNotNull(getProperty("dump.rootFolder"));
-        Assert.assertNotNull(eventService);
-        Assert.assertNotNull(ticketService);
-        Assert.assertNotNull(userService);
-        Assert.assertNotNull(bookingFacade);
-        Assert.assertNotNull(eventDao);
-        Assert.assertNotNull(ticketDao);
-        Assert.assertNotNull(userDao);
-        Assert.assertNotNull(eventDao);
-        Assert.assertNotNull(context.getBeansOfType(JsonInstanceCreator.class));
-        Assert.assertNotNull(context.getBean(FileUtils.class));
-        Assert.assertNotNull(context.getBean(Serializer.class));
-    }
-
-    @Test
-    public void byteConfig() {
-        setActiveProfiles("byte");
-        Assert.assertNotNull(getProperty("dao.event.initializationFilePath"));
-        Assert.assertNotNull(getProperty("dao.ticket.initializationFilePath"));
-        Assert.assertNotNull(getProperty("dao.user.initializationFilePath"));
-        Assert.assertNotNull(getProperty("dump.itemCount"));
-        Assert.assertNotNull(getProperty("dump.rootFolder"));
-        Assert.assertNotNull(eventService);
-        Assert.assertNotNull(ticketService);
-        Assert.assertNotNull(userService);
-        Assert.assertNotNull(bookingFacade);
-        Assert.assertNotNull(eventDao);
-        Assert.assertNotNull(ticketDao);
-        Assert.assertNotNull(userDao);
-        Assert.assertNotNull(eventDao);
-        verifyNotContainsInConfig(context, JsonInstanceCreator.class);
-        Assert.assertNotNull(context.getBean(FileUtils.class));
-        Assert.assertNotNull(context.getBean(Serializer.class));
-    }
-
-    @Test
-    public void byteDumpConfig() {
-        setActiveProfiles("byte", "dump");
-        Assert.assertNotNull(getProperty("dao.event.initializationFilePath"));
-        Assert.assertNotNull(getProperty("dao.ticket.initializationFilePath"));
-        Assert.assertNotNull(getProperty("dao.user.initializationFilePath"));
-        Assert.assertNotNull(getProperty("dump.itemCount"));
-        Assert.assertNotNull(getProperty("dump.rootFolder"));
-        Assert.assertNotNull(eventService);
-        Assert.assertNotNull(ticketService);
-        Assert.assertNotNull(userService);
-        Assert.assertNotNull(bookingFacade);
-        Assert.assertNotNull(eventDao);
-        Assert.assertNotNull(ticketDao);
-        Assert.assertNotNull(userDao);
-        Assert.assertNotNull(eventDao);
-        verifyNotContainsInConfig(context, JsonInstanceCreator.class);
-        Assert.assertNotNull(context.getBean(FileUtils.class));
-        Assert.assertNotNull(context.getBean(Serializer.class));
+    public void localConfig() {
+        BaseContainerTest containerTest = new BaseContainerTest("local", "dump");
+        Assert.assertEquals("org.hibernate.dialect.H2Dialect", containerTest.getProperty("hibernate.dialect"));
+        Assert.assertEquals("true", containerTest.getProperty("hibernate.show-sql"));
+        Assert.assertEquals("create", containerTest.getProperty("hibernate.hbm2ddl.auto"));
+        Assert.assertEquals("jdbc:h2:mem:myDb;DB_CLOSE_DELAY=-1", containerTest.getProperty("spring.datasource.url"));
+        Assert.assertEquals("spring_data_access", containerTest.getProperty("spring.datasource.username"));
+        Assert.assertEquals("SuperPassword1!", containerTest.getProperty("spring.datasource.password"));
+        Assert.assertEquals("org.h2.Driver", containerTest.getProperty("spring.datasource.driver-class-name"));
+        Assert.assertTrue(containerTest.isContainsProperty("initial-date-population.enabled"));
+        Assert.assertTrue(containerTest.isContainsProperty("initial-date-population.read"));
+        Assert.assertTrue(containerTest.isContainsProperty("initial-date-population.item_count"));
+        Assert.assertTrue(containerTest.isContainsProperty("initial-date-population.user_file_path"));
+        Assert.assertTrue(containerTest.isContainsProperty("initial-date-population.user_account_file_path"));
+        Assert.assertTrue(containerTest.isContainsProperty("initial-date-population.ticket_file_path"));
+        Assert.assertTrue(containerTest.isContainsProperty("initial-date-population.event_file_path"));
+        Assert.assertNotNull(containerTest.eventService);
+        Assert.assertNotNull(containerTest.ticketService);
+        Assert.assertNotNull(containerTest.userService);
+        Assert.assertNotNull(containerTest.bookingFacade);
+        Assert.assertNotNull(containerTest.eventDao);
+        Assert.assertNotNull(containerTest.ticketDao);
+        Assert.assertNotNull(containerTest.userDao);
+        Assert.assertNotNull(containerTest.eventDao);
     }
 
 }

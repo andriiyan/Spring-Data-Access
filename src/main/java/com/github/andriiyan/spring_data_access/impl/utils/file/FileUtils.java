@@ -14,17 +14,6 @@ public class FileUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
-    private final Serializer serializer;
-
-    /**
-     * Creates instance of the FileUtils class.
-     *
-     * @param serializer uses for serialization and deserialization process.
-     */
-    public FileUtils(Serializer serializer) {
-        this.serializer = serializer;
-    }
-
     /**
      * Writes models to the file.
      *
@@ -33,7 +22,11 @@ public class FileUtils {
      * @return true if all models were saved, otherwise - false.
      * @throws IOException in case any IO exceptions during serialization.
      */
-    public <T> boolean writeIntoFile(final String path, final Collection<T> items) throws IOException {
+    public static <T> boolean writeIntoFile(
+            @NonNull Serializer serializer,
+            @NonNull final String path,
+            @NonNull final Collection<T> items
+    ) throws IOException {
         boolean isReady = true;
         final File file = new File(path);
         if (!file.exists()) {
@@ -58,15 +51,15 @@ public class FileUtils {
      * Reads models from the file.
      *
      * @param file file from which models will be read.
-     * @param type type of the model.
      * @return [Collection] of deserialized items.
      * @throws IOException in case any IO exception during deserialization.
      * @throws ClassNotFoundException in case model's class is not loaded.
      */
-    public <T> Collection<T> readFromFile(
+    public static <T> Collection<T> readFromFile(
+            @NonNull final Serializer serializer,
             @NonNull final File file,
             @NonNull final Class<T> type
-    ) throws IOException, ClassNotFoundException {
+    ) throws IOException {
         if (!file.exists()) {
             logger.error("File {} is not exists", file.getAbsoluteFile());
             throw new FileNotFoundException("File " + file.getAbsolutePath() + " not found.");
@@ -81,14 +74,6 @@ public class FileUtils {
             logger.error("Could not read from the file", e);
             throw e;
         }
-    }
-
-    /**
-     * @return file's extension
-     */
-    @NonNull
-    public String fileExtension() {
-        return serializer.fileExtension();
     }
 
 }

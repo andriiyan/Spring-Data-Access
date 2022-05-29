@@ -1,6 +1,7 @@
 package com.github.andriiyan.spring_data_access.impl.utils.file.serializer;
 
 import com.github.andriiyan.spring_data_access.impl.utils.file.Serializer;
+import org.springframework.lang.NonNull;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -10,9 +11,8 @@ import java.util.List;
 /**
  * Serializes/deserializes plain java objects by transforming them into the stream of bytes.
  */
-class ByteSerializer implements Serializer {
+public class ByteSerializer implements Serializer {
 
-    private static final String FILE_EXT = ".object";
     private static final long terminalUUID = 51984L;
 
     static class TerminalObject implements Serializable {
@@ -29,7 +29,7 @@ class ByteSerializer implements Serializer {
     }
 
     @Override
-    public <T> boolean serialize(Collection<T> models, OutputStream outputStream) {
+    public <T> boolean serialize(@NonNull Collection<T> models, @NonNull OutputStream outputStream) {
         try {
             final ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
             for (Object item : models) {
@@ -46,7 +46,7 @@ class ByteSerializer implements Serializer {
     }
 
     @Override
-    public <T> Collection<T> deserialize(InputStream inputStream, Class<T> type) {
+    public <T> Collection<T> deserialize(@NonNull InputStream inputStream, @NonNull Class<T> type) {
         final List<T> readObjects = new ArrayList<>();
         try {
             final ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
@@ -65,8 +65,4 @@ class ByteSerializer implements Serializer {
         return readObjects;
     }
 
-    @Override
-    public String fileExtension() {
-        return FILE_EXT;
-    }
 }

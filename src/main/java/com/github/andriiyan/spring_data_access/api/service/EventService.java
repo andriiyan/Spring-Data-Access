@@ -1,7 +1,7 @@
 package com.github.andriiyan.spring_data_access.api.service;
 
 import com.github.andriiyan.spring_data_access.api.model.Event;
-import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
+import com.github.andriiyan.spring_data_access.impl.model.EventEntity;
 
 import java.util.Date;
 import java.util.List;
@@ -21,7 +21,7 @@ public interface EventService {
      * @param pageNum Pagination param. Number of the page to return. Starts from 1.
      * @return List of events.
      */
-    List<Event> getEventsByTitle(String title, int pageSize, int pageNum);
+    List<EventEntity> getEventsByTitle(String title, int pageSize, int pageNum);
 
     /**
      * Get list of events for specified day.
@@ -31,21 +31,21 @@ public interface EventService {
      * @param pageNum Pagination param. Number of the page to return. Starts from 1.
      * @return List of events.
      */
-    List<Event> getEventsForDay(Date day, int pageSize, int pageNum);
+    List<EventEntity> getEventsForDay(Date day, int pageSize, int pageNum);
 
     /**
      * Creates new event. Event id should be auto-generated.
      * @param event Event data.
      * @return Created Event object.
      */
-    Event createEvent(Event event);
+    Event createEvent(EventEntity event);
 
     /**
      * Updates event using given data.
      * @param event Event data for update. Should have id set.
      * @return Updated Event object.
      */
-    Event updateEvent(Event event) throws ModelNotFoundException;
+    Event updateEvent(EventEntity event);
 
     /**
      * Deletes event by its id.

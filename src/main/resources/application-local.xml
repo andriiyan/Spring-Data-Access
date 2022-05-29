@@ -6,11 +6,7 @@
         https://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd"
-       profile="dump">
-    <context:property-placeholder location="classpath:dump.properties"/>
-    <bean id="dumpUtils" class="com.github.andriiyan.spring_data_access.impl.utils.DumpUtils" lazy-init="false" init-method="dump">
-        <constructor-arg name="rootFolder" value="${dump.rootFolder}"/>
-        <constructor-arg ref="fileUtils"/>
-        <constructor-arg name="itemCount" value="${dump.itemCount}"/>
-    </bean>
+       profile="local"
+       default-lazy-init="true">
+    <context:property-placeholder location="classpath:application-local.properties, classpath:application-dump.properties"/>
 </beans>

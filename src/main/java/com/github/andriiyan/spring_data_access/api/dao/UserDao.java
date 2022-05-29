@@ -1,13 +1,16 @@
 package com.github.andriiyan.spring_data_access.api.dao;
 
-import com.github.andriiyan.spring_data_access.api.model.User;
+import com.github.andriiyan.spring_data_access.impl.model.UserEntity;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface UserDao extends BaseDao<User> {
+public interface UserDao extends PagingAndSortingRepository<UserEntity, Long> {
 
-    User getUserByEmail(String email);
+    Optional<UserEntity> findByEmail(String email);
 
-    List<User> getUsersByName(String name, int pageSize, int pageNum);
+    List<UserEntity> findAllByName(String name, Pageable pageable);
 
 }

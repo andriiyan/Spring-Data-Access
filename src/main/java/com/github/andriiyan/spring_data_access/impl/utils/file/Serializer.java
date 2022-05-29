@@ -13,11 +13,6 @@ import java.util.Collection;
 public interface Serializer {
 
     /**
-     * @return file's extension.
-     */
-    @NonNull String fileExtension();
-
-    /**
      * Serializes collection of items into file.
      *
      * @param models items that should be serialized.
@@ -33,6 +28,7 @@ public interface Serializer {
      * Deserializes collection of items from the file.
      *
      * @param inputStream stream from which java objects should be deserialized.
+     * @param type type of the model.
      * @return [Collection] of the [Serializable] objects which was deserialized from the file or null if error has
      * happened.
      */

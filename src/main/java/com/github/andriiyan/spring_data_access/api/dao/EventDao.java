@@ -1,14 +1,16 @@
 package com.github.andriiyan.spring_data_access.api.dao;
 
-import com.github.andriiyan.spring_data_access.api.model.Event;
+import com.github.andriiyan.spring_data_access.impl.model.EventEntity;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.Date;
 import java.util.List;
 
-public interface EventDao extends BaseDao<Event> {
+public interface EventDao extends PagingAndSortingRepository<EventEntity, Long> {
 
-    List<Event> getEventsByTitle(String title, int pageSize, int pageNum);
+    List<EventEntity> findAllByTitle(String title, Pageable pageable);
 
-    List<Event> getEventsForDay(Date day, int pageSize, int pageNum);
+    List<EventEntity> findAllByDate(Date day, Pageable pageable);
 
 }

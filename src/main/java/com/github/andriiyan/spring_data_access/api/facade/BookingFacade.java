@@ -1,9 +1,13 @@
 package com.github.andriiyan.spring_data_access.api.facade;
 
+import com.github.andriiyan.spring_data_access.api.exceptions.NotEnoughMoneyException;
 import com.github.andriiyan.spring_data_access.api.model.Event;
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
 import com.github.andriiyan.spring_data_access.api.model.User;
-import com.github.andriiyan.spring_data_access.impl.dao.exception.ModelNotFoundException;
+import com.github.andriiyan.spring_data_access.api.model.UserAccount;
+import com.github.andriiyan.spring_data_access.impl.model.EventEntity;
+import com.github.andriiyan.spring_data_access.impl.model.TicketEntity;
+import com.github.andriiyan.spring_data_access.impl.model.UserEntity;
 
 import java.util.Date;
 import java.util.List;
@@ -28,7 +32,7 @@ public interface BookingFacade {
      * @param pageNum Pagination param. Number of the page to return. Starts from 1.
      * @return List of events.
      */
-    List<Event> getEventsByTitle(String title, int pageSize, int pageNum);
+    List<EventEntity> getEventsByTitle(String title, int pageSize, int pageNum);
 
     /**
      * Get list of events for specified day.
@@ -38,21 +42,21 @@ public interface BookingFacade {
      * @param pageNum Pagination param. Number of the page to return. Starts from 1.
      * @return List of events.
      */
-    List<Event> getEventsForDay(Date day, int pageSize, int pageNum);
+    List<EventEntity> getEventsForDay(Date day, int pageSize, int pageNum);
 
     /**
      * Creates new event. Event id should be auto-generated.
      * @param event Event data.
      * @return Created Event object.
      */
-    Event createEvent(Event event);
+    Event createEvent(EventEntity event);
 
     /**
      * Updates event using given data.
      * @param event Event data for update. Should have id set.
      * @return Updated Event object.
      */
-    Event updateEvent(Event event) throws ModelNotFoundException;
+    Event updateEvent(EventEntity event);
 
     /**
      * Deletes event by its id.
@@ -81,21 +85,21 @@ public interface BookingFacade {
      * @param pageNum Pagination param. Number of the page to return. Starts from 1.
      * @return List of users.
      */
-    List<User> getUsersByName(String name, int pageSize, int pageNum);
+    List<UserEntity> getUsersByName(String name, int pageSize, int pageNum);
 
     /**
      * Creates new user. User id should be auto-generated.
      * @param user User data.
      * @return Created User object.
      */
-    User createUser(User user);
+    User createUser(UserEntity user);
 
     /**
      * Updates user using given data.
      * @param user User data for update. Should have id set.
      * @return Updated User object.
      */
-    User updateUser(User user) throws ModelNotFoundException;
+    User updateUser(UserEntity user);
 
     /**
      * Deletes user by its id.
@@ -113,7 +117,7 @@ public interface BookingFacade {
      * @return Booked ticket object.
      * @throws IllegalStateException if this place has already been booked.
      */
-    Ticket bookTicket(long userId, long eventId, int place, Ticket.Category category);
+    Ticket bookTicket(long userId, long eventId, int place, Ticket.Category category) throws NotEnoughMoneyException;
 
     /**
      * Get all booked tickets for specified user. Tickets should be sorted by event date in descending order.
@@ -122,7 +126,7 @@ public interface BookingFacade {
      * @param pageNum Pagination param. Number of the page to return. Starts from 1.
      * @return List of Ticket objects.
      */
-    List<Ticket> getBookedTickets(User user, int pageSize, int pageNum);
+    List<TicketEntity> getBookedTickets(User user, int pageSize, int pageNum);
 
     /**
      * Get all booked tickets for specified event. Tickets should be sorted in by user email in ascending order.
@@ -131,7 +135,7 @@ public interface BookingFacade {
      * @param pageNum Pagination param. Number of the page to return. Starts from 1.
      * @return List of Ticket objects.
      */
-    List<Ticket> getBookedTickets(Event event, int pageSize, int pageNum);
+    List<TicketEntity> getBookedTickets(Event event, int pageSize, int pageNum);
 
     /**
      * Cancel ticket with a specified id.
@@ -139,5 +143,19 @@ public interface BookingFacade {
      * @return Flag whether anything has been canceled.
      */
     boolean cancelTicket(long ticketId);
+
+    /**
+     * Refills user's account.
+     * @param amount amount that wil be added to the user's account.
+     * @param userId id of the user.
+     * @return new user's account amount.
+     */
+    UserAccount refillUser(double amount, long userId);
+
+    /**
+     * @param userId id of the user.
+     * @return user's amount.
+     */
+    UserAccount getUserAmount(long userId);
 
 }

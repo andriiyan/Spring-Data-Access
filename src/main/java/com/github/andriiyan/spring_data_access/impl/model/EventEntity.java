@@ -1,24 +1,51 @@
 package com.github.andriiyan.spring_data_access.impl.model;
 
 import com.github.andriiyan.spring_data_access.api.model.Event;
-import com.github.andriiyan.spring_data_access.impl.utils.JsonInstanceCreator;
-import com.google.gson.Gson;
+import org.springframework.lang.NonNull;
 
-import java.util.Arrays;
-import java.util.Collection;
+import javax.persistence.*;
+import java.sql.Time;
 import java.util.Date;
 
+@Entity
+@Table(
+        name = "event",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"title", "date"})
+)
 public class EventEntity implements Event {
     private static final long serialVersionUID = 1L;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private long id;
+
+    @Column(name = "title", nullable = false)
     private String title;
+
+    @Column(name = "date", nullable = false)
+    @Temporal(value = TemporalType.DATE)
     private Date date;
 
-    public EventEntity(long id, String title, Date date) {
+    @Column(name = "time", nullable = false)
+    @Temporal(value = TemporalType.TIME)
+    private Date time;
+
+    @Column(name = "ticket_price", nullable = false)
+    private double ticketPrice;
+
+    public EventEntity(@NonNull String title, @NonNull Date dateAndTime, double ticketPrice) {
+        this(0, title, dateAndTime, ticketPrice);
+    }
+
+    public EventEntity(long id, @NonNull String title, @NonNull Date dateAndTime, double ticketPrice) {
         this.id = id;
         this.title = title;
-        this.date = date;
+        this.ticketPrice = ticketPrice;
+        setDate(dateAndTime);
+    }
+
+    public EventEntity() {
     }
 
     @Override
@@ -49,6 +76,17 @@ public class EventEntity implements Event {
     @Override
     public void setDate(Date date) {
         this.date = date;
+        this.time = date;
+    }
+
+    @Override
+    public double getTicketPrice() {
+        return ticketPrice;
+    }
+
+    @Override
+    public void setTicketPrice(double price) {
+        this.ticketPrice = price;
     }
 
     @Override
@@ -60,16 +98,30 @@ public class EventEntity implements Event {
                 '}';
     }
 
-    public static class EventJsonInstanceCreator implements JsonInstanceCreator<Event> {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EventEntity)) return false;
 
-        @Override
-        public Collection<Event> createInstances(String source, Gson gson) {
-            return Arrays.asList(gson.fromJson(source, EventEntity[].class));
-        }
+        EventEntity that = (EventEntity) o;
 
-        @Override
-        public Class<Event> getType() {
-            return Event.class;
-        }
+        if (id != that.id) return false;
+        if (Double.compare(that.ticketPrice, ticketPrice) != 0) return false;
+        if (!title.equals(that.title)) return false;
+        if (!date.equals(that.date)) return false;
+        return time.equals(that.time);
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = (int) (id ^ (id >>> 32));
+        result = 31 * result + title.hashCode();
+        result = 31 * result + date.hashCode();
+        result = 31 * result + time.hashCode();
+        temp = Double.doubleToLongBits(ticketPrice);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 }

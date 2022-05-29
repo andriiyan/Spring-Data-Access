@@ -1,16 +1,19 @@
 package com.github.andriiyan.spring_data_access.impl.utils;
 
-import com.github.andriiyan.spring_data_access.api.model.Event;
-import com.github.andriiyan.spring_data_access.api.model.Ticket;
-import com.github.andriiyan.spring_data_access.api.model.User;
+import com.github.andriiyan.spring_data_access.api.exceptions.NotEnoughMoneyException;
+import com.github.andriiyan.spring_data_access.api.facade.BookingFacade;
 import com.github.andriiyan.spring_data_access.impl.model.EventEntity;
 import com.github.andriiyan.spring_data_access.impl.model.TicketEntity;
+import com.github.andriiyan.spring_data_access.impl.model.UserAccountEntity;
 import com.github.andriiyan.spring_data_access.impl.model.UserEntity;
 import com.github.andriiyan.spring_data_access.impl.utils.file.FileUtils;
+import com.github.andriiyan.spring_data_access.impl.utils.file.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -21,44 +24,86 @@ class DumpUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(DumpUtils.class);
 
+    private final String eventFilePath;
+    private final String userFilePath;
+    private final String userAccountFilePath;
+    private final String ticketFilePath;
     @NonNull
-    private final FileUtils fileUtils;
-    @NonNull
-    private String rootFolder;
-    private final int itemCount;
+    private final Serializer serializer;
+    private boolean read;
+    private boolean enabled;
+
+    // dump optional fields
+
+    /**
+     * count of the items that should be generated and wrote into each dump file.
+     */
+    private int itemCount;
+
+    // store optional fields
+
+    @Nullable
+    private BookingFacade bookingFacade;
+
+    DumpUtils(@NonNull String eventFilePath,
+              @NonNull String userFilePath,
+              @NonNull String userAccountFilePath,
+              @NonNull String ticketFilePath,
+              @NonNull Serializer serializer,
+              boolean read
+    ) {
+        this(eventFilePath, userFilePath, userAccountFilePath, ticketFilePath, serializer, read, true);
+    }
 
     /**
      * Creates instance of the [DumpUtils] class.
      *
-     * @param rootFolder specifies root directory where dump files will be created.
-     * @param fileUtils file utilities for write models into the files.
-     * @param itemCount count of the items that should be generated and wrote into the each dump file.
+     * @param serializer specifies how to serialize/deserialize objects.
+     * @param read       defines if dump should read and populate data or just create a set of data and dump them.
+     * @param enabled    defines whether dump is enabled.
      */
-    public DumpUtils(@NonNull String rootFolder, @NonNull FileUtils fileUtils, int itemCount) {
-        this.rootFolder = rootFolder;
-        this.fileUtils = fileUtils;
-        this.itemCount = itemCount;
+    DumpUtils(
+            String eventFilePath,
+            String userFilePath,
+            String userAccountFilePath,
+            String ticketFilePath,
+            @NonNull Serializer serializer,
+            boolean read,
+            boolean enabled
+    ) {
+        this.eventFilePath = eventFilePath;
+        this.userFilePath = userFilePath;
+        this.userAccountFilePath = userAccountFilePath;
+        this.ticketFilePath = ticketFilePath;
+        this.serializer = serializer;
+        this.read = read;
+        this.enabled = enabled;
+    }
+
+    void init() {
+        if (enabled) {
+            if (read) {
+                store();
+            } else {
+                dump();
+            }
+        }
     }
 
     /**
      * Writes models into the files.
-     *
-     * As result there will be created 3 files under the [rootFolder] directory:
-     * - events;
-     * - tickets;
-     * - users;
-     * File's extensions will variate depending on the chose Serializer (which injects into the FileUtils). possible
-     * variants of extensions are: .json, .object.
      */
-    DumpResult dump() {
+    private DumpResult dump() {
         try {
-            final Collection<User> users = dumpUsers();
-            logger.info("Users {} were dumped into the {}/users{}", users, rootFolder, suffix());
-            final Collection<Event> events = dumpEvents();
-            logger.info("Events {} were dumped into the {}/events{}", events, rootFolder, suffix());
-            final Collection<Ticket> tickets = dumpTickets();
-            logger.info("Tickets {} were dumped into the {}/tickets{}", tickets, rootFolder, suffix());
-            return new DumpResult(events, users, tickets);
+            final Collection<UserEntity> users = dumpUsers();
+            logger.info("Users {} were dumped into the {}", users, userFilePath);
+            final Collection<EventEntity> events = dumpEvents();
+            logger.info("Events {} were dumped into the {}", events, eventFilePath);
+            final Collection<TicketEntity> tickets = dumpTickets();
+            logger.info("Tickets {} were dumped into the {}", tickets, ticketFilePath);
+            final Collection<UserAccountEntity> userAccountEntities = dumpUserAccounts();
+            logger.info("UserAccounts {} were dumped into the {}", userAccountEntities, userAccountFilePath);
+            return new DumpResult(events, users, tickets, userAccountEntities);
         } catch (IOException e) {
             e.printStackTrace();
             logger.error(e.getMessage());
@@ -66,83 +111,146 @@ class DumpUtils {
         return new DumpResult();
     }
 
+    private void store() {
+        if (bookingFacade == null) {
+            logger.warn("DumpUtils configured to read data and populate the database, but bookingFacade was not provided." +
+                    "Make sure you've set it via setBookingFacade method");
+            return;
+        }
+        try {
+            Collection<UserEntity> userEntities = FileUtils.readFromFile(serializer, new File(userFilePath), UserEntity.class);
+            Collection<UserAccountEntity> userAccountEntities = FileUtils.readFromFile(serializer, new File(userAccountFilePath), UserAccountEntity.class);
+            Collection<EventEntity> eventEntities = FileUtils.readFromFile(serializer, new File(eventFilePath), EventEntity.class);
+            Collection<TicketEntity> ticketEntities = FileUtils.readFromFile(serializer, new File(ticketFilePath), TicketEntity.class);
+            for (UserEntity user : userEntities) {
+                bookingFacade.createUser(user);
+            }
+            for (UserAccountEntity userAccount : userAccountEntities) {
+                bookingFacade.refillUser(userAccount.getAmount(), userAccount.getUserId());
+            }
+            for (EventEntity event : eventEntities) {
+                bookingFacade.createEvent(event);
+            }
+            for (TicketEntity entity : ticketEntities) {
+                bookingFacade.bookTicket(entity.getUserId(), entity.getEventId(), entity.getPlace(), entity.getCategory());
+            }
+            logger.info("Data successfully populated, with \n\tusers: {},\n\n\tuserAccounts: {},\n\n\tevents: {}, \n\n\ttickets: {}", userEntities, userAccountEntities, eventEntities, ticketEntities);
+        } catch (IOException | NotEnoughMoneyException e) {
+            logger.error("Exception while reading the dumped data", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+
     /**
      * Writes event models into the "events" file under the rootFolder directory.
+     *
      * @throws IOException in case any IO exception during the operation.
      */
-    private Collection<Event> dumpEvents() throws IOException {
-        Collection<Event> events = new ArrayList<>();
+    private Collection<EventEntity> dumpEvents() throws IOException {
+        Collection<EventEntity> events = new ArrayList<>();
         for (int i = 0; i < itemCount; i++) {
-            events.add(new EventEntity(i, "Test #" + i, new Date()));
+            events.add(new EventEntity("Test #" + i, new Date(), i + 20));
         }
-        fileUtils.writeIntoFile(rootFolder + "events" + suffix(), events);
+        FileUtils.writeIntoFile(serializer, eventFilePath, events);
         return events;
     }
 
     /**
      * Writes ticket models into the "tickets" file under the rootFolder directory.
+     *
      * @throws IOException in case any IO exception during the operation.
      */
-    private Collection<Ticket> dumpTickets() throws IOException {
-        Collection<Ticket> tickets = new ArrayList<>();
+    private Collection<TicketEntity> dumpTickets() throws IOException {
+        Collection<TicketEntity> tickets = new ArrayList<>();
         for (int i = 0; i < itemCount; i++) {
-            tickets.add(new TicketEntity(i, i, i, Ticket.Category.PREMIUM, i));
+            tickets.add(new TicketEntity(i, i + 1, i + 1, TicketEntity.Category.PREMIUM, i));
         }
-        fileUtils.writeIntoFile(rootFolder + "tickets" + suffix(), tickets);
+        FileUtils.writeIntoFile(serializer, ticketFilePath, tickets);
         return tickets;
     }
 
     /**
      * Writes user models into the "users" file under the rootFolder directory.
+     *
      * @throws IOException in case any IO exception during the operation.
      */
-    private Collection<User> dumpUsers() throws IOException {
-        Collection<User> events = new ArrayList<>();
+    private Collection<UserEntity> dumpUsers() throws IOException {
+        Collection<UserEntity> events = new ArrayList<>();
         for (int i = 0; i < itemCount; i++) {
             events.add(new UserEntity(i, "Test #" + i, "email #" + i));
         }
-        fileUtils.writeIntoFile(rootFolder + "users" + suffix(), events);
+        FileUtils.writeIntoFile(serializer, userFilePath, events);
         return events;
     }
 
     /**
-     * @return file's extension.
+     * Writes userAccount models into the "users" file under the rootFolder directory.
+     *
+     * @throws IOException in case any IO exception during the operation.
      */
-    @NonNull
-    private String suffix() {
-        return fileUtils.fileExtension();
+    private Collection<UserAccountEntity> dumpUserAccounts() throws IOException {
+        Collection<UserAccountEntity> events = new ArrayList<>();
+        for (int i = 0; i < itemCount; i++) {
+            events.add(new UserAccountEntity(i, i * 10));
+        }
+        FileUtils.writeIntoFile(serializer, userAccountFilePath, events);
+        return events;
     }
 
-    public void setRootFolder(@NonNull String rootFolder) {
-        this.rootFolder = rootFolder;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public void setRead(boolean read) {
+        this.read = read;
+    }
+
+    public boolean isRead() {
+        return read;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setItemCount(int itemCount) {
+        this.itemCount = itemCount;
+    }
+
+    public void setBookingFacade(@Nullable BookingFacade bookingFacade) {
+        this.bookingFacade = bookingFacade;
     }
 
     public static class DumpResult {
-        final List<Event> dumpedEvents;
-        final List<User> dumpedUsers;
-        final List<Ticket> dumpedTickets;
+        final List<EventEntity> dumpedEvents;
+        final List<UserEntity> dumpedUsers;
+        final List<TicketEntity> dumpedTickets;
+        final List<UserAccountEntity> dumpedUserAccounts;
 
         public DumpResult() {
             this.dumpedEvents = Collections.emptyList();
             this.dumpedUsers = Collections.emptyList();
             this.dumpedTickets = Collections.emptyList();
+            this.dumpedUserAccounts = Collections.emptyList();
         }
 
-        public DumpResult(Collection<Event> dumpedEvents, Collection<User> dumpedUsers, Collection<Ticket> dumpedTickets) {
+        public DumpResult(Collection<EventEntity> dumpedEvents, Collection<UserEntity> dumpedUsers, Collection<TicketEntity> dumpedTickets, Collection<UserAccountEntity> userAccountEntities) {
             this.dumpedEvents = new ArrayList<>(dumpedEvents);
             this.dumpedUsers = new ArrayList<>(dumpedUsers);
             this.dumpedTickets = new ArrayList<>(dumpedTickets);
+            this.dumpedUserAccounts = new ArrayList<>(userAccountEntities);
         }
 
-        public List<Event> getDumpedEvents() {
+        public List<EventEntity> getDumpedEvents() {
             return dumpedEvents;
         }
 
-        public List<Ticket> getDumpedTickets() {
+        public List<TicketEntity> getDumpedTickets() {
             return dumpedTickets;
         }
 
-        public List<User> getDumpedUsers() {
+        public List<UserEntity> getDumpedUsers() {
             return dumpedUsers;
         }
     }

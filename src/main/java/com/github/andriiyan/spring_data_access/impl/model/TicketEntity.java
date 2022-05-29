@@ -1,20 +1,41 @@
 package com.github.andriiyan.spring_data_access.impl.model;
 
 import com.github.andriiyan.spring_data_access.api.model.Ticket;
-import com.github.andriiyan.spring_data_access.impl.utils.JsonInstanceCreator;
-import com.google.gson.Gson;
+import com.github.andriiyan.spring_data_access.impl.utils.converter.CategoryConverter;
+import javax.persistence.*;
 
-import java.util.Arrays;
-import java.util.Collection;
-
+@Entity
+@Table(
+        name = "ticket",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"event_id", "place"})
+)
 public class TicketEntity implements Ticket {
     private static final long serialVersionUID = 1L;
 
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @Column(name = "event_id", nullable = false)
     private long eventId;
+
+    @Column(name = "user_id", nullable = false)
     private long userId;
+
+    @Column(name = "category", nullable = false)
+    @Convert(converter = CategoryConverter.class)
     private Category category;
+
+    @Column(name = "place", nullable = false)
     private int place;
+
+    public TicketEntity() {
+    }
+
+    public TicketEntity(long eventId, long userId, Category category, int place) {
+        this(0, eventId, userId, category, place);
+    }
 
     public TicketEntity(long id, long eventId, long userId, Category category, int place) {
         this.id = id;
@@ -85,16 +106,27 @@ public class TicketEntity implements Ticket {
                 '}';
     }
 
-    public static class TicketJsonInstanceCreator implements JsonInstanceCreator<Ticket> {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TicketEntity)) return false;
 
-        @Override
-        public Collection<Ticket> createInstances(String source, Gson gson) {
-            return Arrays.asList(gson.fromJson(source, TicketEntity[].class));
-        }
+        TicketEntity that = (TicketEntity) o;
 
-        @Override
-        public Class<Ticket> getType() {
-            return Ticket.class;
-        }
+        if (id != that.id) return false;
+        if (eventId != that.eventId) return false;
+        if (userId != that.userId) return false;
+        if (place != that.place) return false;
+        return category == that.category;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (int) (eventId ^ (eventId >>> 32));
+        result = 31 * result + (int) (userId ^ (userId >>> 32));
+        result = 31 * result + (category != null ? category.hashCode() : 0);
+        result = 31 * result + place;
+        return result;
     }
 }
